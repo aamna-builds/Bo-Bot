@@ -41,7 +41,7 @@ Power connections:
 
 | From | To |
 |---|---|
-| Battery + (through the XT30 / switch) | DRV8833 VM, buck converter input, top of the battery divider |
+| Battery + (through the XT60 / switch) | DRV8833 VM, buck converter input, top of the battery divider |
 | Buck converter 5 V output | ESP32 VIN (5 V pin) |
 | ESP32 3V3 | MPU-6050 VCC, OLED VCC, both encoder supply pins |
 | All grounds | One common ground (battery, buck, ESP32, DRV8833, sensors, encoders) |
@@ -54,5 +54,5 @@ Power connections:
 - **DRV8833 sleep pin:** if your module has an `SLP` / `nSLEEP` pin, connect it to 3V3 or the motors stay off.
 - **Do not power the robot from the battery and from USB at the same time** unless the board has a protection diode.
   Use USB alone for programming on the bench, with the motor battery disconnected.
-- Check polarity on the XT30 battery connector before powering on.
+- Check polarity on the XT60 battery connector before powering on.
 - Add photos or Fritzing / KiCad exports of the wiring here.

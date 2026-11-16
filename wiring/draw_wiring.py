@@ -46,7 +46,7 @@ box(82, 84, 112, 98, "OLED 1.3\" SH1106", "#eaf2ff", sub="face (I2C)")
 box(116, 40, 146, 74, "DRV8833", "#fdeeee", sub="motor driver")
 box(3, 56, 32, 78, "Left motor", "#f3eefb", sub="GA12-N20 + encoder")
 box(3, 28, 32, 50, "Right motor", "#f3eefb", sub="GA12-N20 + encoder")
-box(116, 4, 146, 24, "2S LiPo 7.4 V", "#fdeaf1", sub="XT30 + switch")
+box(116, 4, 146, 24, "2S LiPo 7.4 V", "#fdeaf1", sub="XT60 + switch")
 box(62, 4, 96, 20, "Buck converter", "#eef8ee", sub="7.4 V in, 5.0 V out")
 
 # ---------------------------------------------------------------- I2C (top)
@@ -101,7 +101,7 @@ ax.text(72, 42.5, "DRV8833 SLP pin to 3V3", fontsize=8.5, color="#555", ha="cent
 x = 3
 for k, lab in [("pwr", "battery power"), ("3v3", "3V3"), ("sda", "I2C SDA"), ("scl", "I2C SCL"), ("mot", "motor"), ("enc", "encoder"), ("bat", "battery sense")]:
     ax.plot([x, x + 4], [103, 103], "-", color=COL[k], lw=3); ax.text(x + 5, 103, lab, fontsize=8.5, va="center"); x += 7 + len(lab) * 1.15
-ax.text(3, 2, "Check XT30 polarity before connecting. Do not power from the battery and USB at the same time.",
+ax.text(3, 2, "Check XT60 polarity before connecting. Do not power from the battery and USB at the same time.",
         fontsize=8.5, color="#a00")
 ax.text(75, 105.5, "BO-BOT wiring", fontsize=15, weight="bold", ha="center", va="bottom")
 fig.savefig(OUT, bbox_inches="tight", facecolor="white")

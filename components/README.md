@@ -11,7 +11,7 @@
 | 5 | DRV8833 two-way motor driver module | 1 | Drives both motors | 20 x 15 mm |
 | 6 | MPU-6050 gyro + accelerometer breakout | 1 | Tilt sensing | 20 x 15 mm |
 | 7 | DC-DC buck module, 6-24 V to 5 V, 3 A | 1 | 5 V supply for the ESP32 | 26.4 x 15 mm |
-| 8 | XT30 connector, male + female | 1 set | Battery connector / on-off | |
+| 8 | XT60 connector, male + female | 1 set | Battery connector / on-off | |
 | 9 | 7.4 V 2S 1000 mAh 35C/70C LiPo battery | 1 | Main power | 68 x 37 x 12 mm |
 | 10 | Jumper wires | 1 set | Signal wiring | |
 
@@ -42,5 +42,12 @@ Put PDFs in [`datasheets/`](datasheets/).
 | Wheels (34 mm) | 1.3" OLED | N20 motors with encoders |
 | ![DRV8833](../media/images/parts/drv8833-motor-driver.jpg) | ![MPU-6050](../media/images/parts/mpu6050.jpg) | ![buck](../media/images/parts/buck-module-1.jpg) |
 | DRV8833 motor driver (headers not soldered yet) | MPU-6050 (headers not soldered yet) | Buck converter (USB-A output) |
-| ![charger](../media/images/parts/balance-charger-1.jpg) | ![XT30](../media/images/parts/xt30-connectors.jpg) | |
-| IMAX B3 Pro balance charger | XT30 connectors | |
+| ![charger](../media/images/parts/balance-charger-1.jpg) | ![XT60](../media/images/parts/xt60-connectors.jpg) | ![LiPo](../media/images/parts/lipo-2s-1000mah.jpg) |
+| IMAX B3 Pro balance charger | XT60 connectors | 2S 7.4 V 1000 mAh 35C LiPo (XT60 + balance lead) |
+
+## Build progress
+
+| | |
+|---|---|
+| ![chassis](../media/images/progress/chassis-front.jpg) | ![motor test](../media/images/progress/motor-bench-test.jpg) |
+| Chassis assembled (acrylic plates, 3D-printed brackets, motors and wheels) | First motor bench test with an Arduino Uno on USB power |

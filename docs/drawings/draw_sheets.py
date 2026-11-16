@@ -407,7 +407,7 @@ def sheet2():
     txt(ax, 292, 279, "PIN MAP", 8.5, weight="bold")
     table(ax, 292, 275, [38, 24, 54], rows, rowh=5.6, size=5.9, aligns=["left", "center", "left"])
     rows2 = [("SUPPLY", "FROM", "TO"),
-             ("7.4 V", "LiPo (XT30)", "DRV8833 VM, buck in, divider"),
+             ("7.4 V", "LiPo (XT60)", "DRV8833 VM, buck in, divider"),
              ("5 V", "buck out", "ESP32 VIN"),
              ("3.3 V", "ESP32 3V3", "MPU, OLED, encoders")]
     table(ax, 292, 224, [20, 30, 66], rows2, rowh=5.6, size=5.9)
@@ -421,7 +421,7 @@ def sheet2():
     rect(ax, c1 - 4, PY - 18.5, c1 + 4, PY + 18.5, MED, fc="white", z=3)
     rect(ax, c1 - 5, PY - 26.5, c1 + 5, PY - 18.5, MED, fc="white", z=3)
     leader(ax, (c1 + 20, PY + 8), (c1 + 40, PY + 33), "LiPo 68 x 37 x 12", 6)
-    leader(ax, (c1, PY - 23), (c1 + 14, PY - 33), "XT30 lead", 6)
+    leader(ax, (c1, PY - 23), (c1 + 14, PY - 33), "XT60 lead", 6)
     dim_h(ax, c1 - 25.5, c1 + 25.5, PY + 21, "51", off=18, size=6.3)
     dim_v(ax, PY - 21, PY + 21, c1 - 25.5, "42", off=-14, size=6.3)
     dim_h(ax, c1 - 35, c1 + 35, PY - 24, "70", off=-4, size=6.3)
@@ -456,7 +456,7 @@ def sheet2():
                            "2.  Platform holes dia 3.2 at (+/-25.5, +/-21); the upper pair at (+/-25.5, 0).",
                            "3.  Power the encoders from 3V3, not 5 V (ESP32 inputs are 3.3 V only).",
                            "4.  DRV8833 SLP pin to 3V3, or the motors stay off.",
-                           "5.  Check XT30 polarity before the first power-up.",
+                           "5.  Check XT60 polarity before the first power-up.",
                            "6.  Do not run from USB and the battery together.",
                            "7.  Pins match firmware/balance_bot/include/config.h."]):
         txt(ax, nx, ny - 7 - i * 5.2, n, 5.9)

@@ -8,7 +8,7 @@ Build order for the robot, with a test after each stage. The layout follows the 
 | Layer | Height in CAD | What goes on it |
 |---|---|---|
 | Wheels and motors | axle level | Two N20 motors held by the motor clamps, 34 mm wheels |
-| Deck 1 | 6.5 mm | Battery (68 x 37 x 12 mm) and the XT30 leads |
+| Deck 1 | 6.5 mm | Battery (68 x 37 x 12 mm) and the XT60 leads |
 | Deck 2 | 24.5 mm | ESP32, MPU-6050, DRV8833, buck converter |
 | Deck 3 | 52.5 mm | Breadboard and the OLED mount at the front |
 | Shell | optional | Thermocol cat shell with ears and bow tie |
@@ -26,7 +26,7 @@ Standoffs: 18 mm and 20 mm between decks (spacing 20 / 20 / 18 mm), M3 screws.
 
 ## Stage 1: mechanical frame
 1. Fix the two motors in the motor clamps, wheels off. The motor shafts must be on the same axis.
-2. Attach deck 1 to the clamps and fit the battery with the XT30 leads at the back.
+2. Attach deck 1 to the clamps and fit the battery with the XT60 leads at the back.
 3. Fit the 20 mm standoffs and deck 2, then the 18 mm standoffs and deck 3.
 4. Press the wheels onto the shafts.
 
@@ -45,7 +45,7 @@ Wire to the pin map in [`../wiring/README.md`](../wiring/README.md).
 [`../firmware/README.md`](../firmware/README.md): MPU found, angle sign, encoder directions.
 
 ## Stage 3: power
-1. Check the XT30 polarity with a multimeter before connecting.
+1. Check the XT60 polarity with a multimeter before connecting.
 2. Set the buck converter to 5.0 V **before** connecting the ESP32.
 3. Do not connect the battery and USB at the same time.
 
