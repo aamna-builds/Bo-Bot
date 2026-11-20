@@ -1,5 +1,5 @@
 // =====================================================================
-//  Snap-in plate standoff pin, v2  (BalanceBot: two plates 17 mm apart)
+//  Snap-in plate standoff pin, v2  (BO-BOT: two plates 17 mm apart)
 // =====================================================================
 //  Round, waisted column with a wide seat at each end and a split snap peg
 //  that clicks through the plate's M3 hole (3.4 mm). No screws, glue or caps.

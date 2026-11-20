@@ -1,5 +1,5 @@
 // =====================================================================
-//  GA12-N20 (with encoder) two-piece clamp for the BalanceBot base plate
+//  GA12-N20 (with encoder) two-piece clamp for the BO-BOT base plate
 // =====================================================================
 //  Holds the motor BODY (gearbox + can, 12 x 10 mm) between two halves
 //  squeezed by two M3 screws. The encoder end stays free.

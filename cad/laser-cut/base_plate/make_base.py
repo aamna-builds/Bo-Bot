@@ -1,5 +1,5 @@
 """
-BalanceBot base plate: laser-cut DXF + 1:1 check print.
+BO-BOT base plate: laser-cut DXF + 1:1 check print.
 
 Drawing coordinates (top view, looking down on the robot):
     u = along the axle (right of page = robot's left side... symmetric anyway)
@@ -103,7 +103,7 @@ for x0 in range(int(-PLATE_W / 2) + 2, int(PLATE_W / 2) - 2, 6):
 bw, bh = BATTERY
 msp.add_lwpolyline([(-4, 22), (4, 22), (0, 28)], close=True, dxfattribs={"layer": "ENGRAVE"})
 msp.add_text("FRONT", dxfattribs={"layer": "ENGRAVE", "height": 3.0}).set_placement((7, 24.5), align=ezdxf.enums.TextEntityAlignment.MIDDLE_LEFT)
-doc.saveas("balancebot_base_plate_v2.dxf")
+doc.saveas("bobot_base_plate_v2.dxf")
 
 # ------------------------------------------------------------------ 1:1 check print (A4)
 import matplotlib
@@ -161,7 +161,7 @@ def draw_page(ax, onetoone=True):
     dim(STANDOFF_U, -STANDOFF_V, STANDOFF_U, STANDOFF_V, f"{2*STANDOFF_V:.0f}", off=(4, 0), fs=6.5)
     dim(-STANDOFF_U, -36, STANDOFF_U, -36, f"standoff holes {2*STANDOFF_U:.0f}", fs=6.5)
 
-with PdfPages("balancebot_base_plate_v2_1to1.pdf") as pdf:
+with PdfPages("bobot_base_plate_v2_1to1.pdf") as pdf:
     W_MM, H_MM = 210, 297
     fig = plt.figure(figsize=(W_MM / 25.4, H_MM / 25.4))
     ax = fig.add_axes([0, 0, 1, 1])
@@ -170,7 +170,7 @@ with PdfPages("balancebot_base_plate_v2_1to1.pdf") as pdf:
     ax.set_autoscale_on(False)
     # title + notes
     T = H_MM / 2 - 40
-    ax.text(-95, T - 12, "BalanceBot — base plate v2 (top view, 1 : 1)", fontsize=12, weight="bold")
+    ax.text(-95, T - 12, "BO-BOT — base plate v2 (top view, 1 : 1)", fontsize=12, weight="bold")
     ax.text(-95, T - 19, "Print at 100 % / 'Actual size'. Check the 50 mm bar before trusting it.", fontsize=7.5, color="#444")
     ax.plot([-95, -45], [T - 26, T - 26], color="black", lw=1.2)
     for x in (-95, -45): ax.plot([x, x], [T - 28, T - 24], color="black", lw=1.2)

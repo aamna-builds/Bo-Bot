@@ -1,5 +1,5 @@
 /*
- * BalanceBot - Uno + MPU-6050 + DRV8833 + SH1106/SSD1306 OLED.   Serial Monitor: 115200, "Newline".
+ * BO-BOT - Uno + MPU-6050 + DRV8833 + SH1106/SSD1306 OLED.   Serial Monitor: 115200, "Newline".
  * Power on while holding it upright + still -> calibrates (1 s) and balances by itself.
  * Button = stop, let go, hold still -> recalibrates and balances again.
  * Commands: g start | x stop | t measure trim | check setup wizard | p live readout | show | save

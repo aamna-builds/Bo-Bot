@@ -7,7 +7,7 @@
     l = left only    r = right only   + / - = PWM       s = stop
     w = watch encoders (turn wheels by hand), any key stops watching
 
-  FINAL WIRING (same as BalanceBotUno.ino)
+  FINAL WIRING (same as BOBOT_Uno.ino)
     DRV8833  IN1->D5   IN2->D6   (left motor,  channel A)
              IN3->D9   IN4->D10  (right motor, channel B)
              EEP->5V   GND->GND   VCC/VM->battery +  (or Uno 5V for a weak USB test)
@@ -21,7 +21,7 @@ const uint8_t ENC_L_A = 2, ENC_L_B = 4;
 const uint8_t ENC_R_A = 3, ENC_R_B = 7;
 
 // Set these so "forward" rolls the robot towards its FRONT, then copy them
-// into BalanceBotUno.ino (same names there).
+// into BOBOT_Uno.ino (same names there).
 #define MOTOR_L_INVERT false
 #define MOTOR_R_INVERT true
 #define ENC_L_INVERT   false

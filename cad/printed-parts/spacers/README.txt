@@ -1,4 +1,4 @@
-Screwless plate spacers - BalanceBot (two plates, 17 mm apart, through the 4 corner M3 holes)
+Screwless plate spacers - BO-BOT (two plates, 17 mm apart, through the 4 corner M3 holes)
 ==========================================================================================
 Print first:  plate_spacer_test.stl   (1 spacer + 2 test caps) -> check the fit
 Then:         plate_spacer_set.stl    (6 spacers: 4 + 2 spares)

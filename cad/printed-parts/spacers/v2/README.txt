@@ -1,4 +1,4 @@
-Snap-in plate standoff pins v2 - BalanceBot (two plates, 17 mm apart, 4 corner M3 holes)
+Snap-in plate standoff pins v2 - BO-BOT (two plates, 17 mm apart, 4 corner M3 holes)
 ==========================================================================================
 Files
   plate_pin_snap_pin.stl    ONE snap pin - print this first to test the fit

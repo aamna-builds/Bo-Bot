@@ -1,4 +1,4 @@
-GA12-N20 (encoder) two-piece motor clamp for the BalanceBot base plate
+GA12-N20 (encoder) two-piece motor clamp for the BO-BOT base plate
 =====================================================================
 Files
   n20_clamp_set.stl     print this: 2 x TOP + 2 x BOTTOM (one clamp per motor)

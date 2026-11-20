@@ -1,5 +1,5 @@
 // =====================================================================
-//  Screwless plate spacer for the BalanceBot (two plates, 17 mm apart)
+//  Screwless plate spacer for the BO-BOT (two plates, 17 mm apart)
 // =====================================================================
 //  A square spacer block with a peg on each end. The pegs go through the
 //  M3 holes (3.4 mm) of both plates and stick out 2.5 mm. Lock each peg:

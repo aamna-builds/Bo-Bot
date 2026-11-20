@@ -121,15 +121,16 @@ A preview of all 16 faces, drawn on a PC from the same code, is in [`../../docs/
 
 | Date | Sketch | Change |
 |---|---|---|
-| 16 Nov | `BalanceBotUno`, `BalanceBotUno_NoDisplay` | First port of the ESP32 controller to the Uno (U8g2 OLED, then without the display) |
-| 16 Nov | `Uno_PID_Balance` and `Uno_PID_1` to `Uno_PID_4` | Simple PID balancing. The four numbered copies try different ways to start: lie down and stand up, a tilt gesture, auto start at power-up, and trim measured at calibration with the driver asleep on D8 |
-| 16 Nov | `BalanceBot_OneSketch` | Setup wizard and balancing in one sketch |
-| 17 Nov | `BalanceBot_Face`, `BalanceBot_UserFace` | First OLED face |
-| 17-18 Nov | `BalanceBot_Faces16`, `BalanceBot_Faces16b` | 16 faces, SH1106 support |
-| 18 Nov | `BalanceBot_Button` | Push button on D12 to recalibrate |
-| 18-19 Nov | `BalanceBot_Steer`, `BalanceBot_SteerOldOled` | Keep-straight (`ks`) and motor balance (`mbal`) |
-| 19 Nov | `BalanceBot_Small`, `BalanceBot_Small2` | Shorter rewrite; OLED reconnects by itself |
-| 19 Nov | `BalanceBot_Alive`, `BalanceBot_Reset` | Moving dot on the face; button and `reset` command restart the Uno |
+| 16 Nov | `BOBOT_Uno`, `BOBOT_Uno_NoDisplay` | First port of the ESP32 controller to the Uno (U8g2 OLED, then without the display) |
+| 16 Nov | `Uno_PID_Balance` and `Uno_PID_1` to `Uno_PID_4` | Simple PID balancing. The four numbered copies try different ways to start: lie down and stand up, a tilt gesture, auto start at power-up, and trim measured at calibration with the driver asleep on D8. `Uno_PID_2b` is the tilt-gesture copy with the IMU axis set the other way round |
+| 16 Nov | `BOBOT_OneSketch` | Setup wizard and balancing in one sketch |
+| 17 Nov | `BOBOT_OneSketch_Tuned` | The same sketch with the gains tuned on the robot (kp 28, kd 0.6, kv 30, kx 3) and a wider start / re-arm window. These gains became the defaults of every later version |
+| 17 Nov | `BOBOT_Face`, `BOBOT_UserFace` | First OLED face |
+| 17-18 Nov | `BOBOT_Faces16`, `BOBOT_Faces16b` | 16 faces, SH1106 support |
+| 18 Nov | `BOBOT_Button` | Push button on D12 to recalibrate |
+| 18-19 Nov | `BOBOT_Steer`, `BOBOT_SteerOldOled` | Keep-straight (`ks`) and motor balance (`mbal`) |
+| 19 Nov | `BOBOT_Small`, `BOBOT_Small2` | Shorter rewrite; OLED reconnects by itself |
+| 19 Nov | `BOBOT_Alive`, `BOBOT_Reset` | Moving dot on the face; button and `reset` command restart the Uno |
 | 20 Nov | **`bobot_v7`** | Current version: button recalibrates in place, OLED retried once a second |
 
 The ESP32 firmware in [`../balance_bot/`](../balance_bot/) was written first, before the build moved to the Uno. It is kept but is not on the robot.

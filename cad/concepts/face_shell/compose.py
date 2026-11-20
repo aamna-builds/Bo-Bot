@@ -6,7 +6,10 @@ def crop(p, pad=25):
     return im.crop((max(bb[0]-pad,0), max(bb[1]-pad,0), min(bb[2]+pad,im.width), min(bb[3]+pad,im.height)))
 def fit(im, w, h):
     im = im.copy(); im.thumbnail((w, h), Image.LANCZOS); return im
-F = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+import os
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+F = next((f for f in ("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", "C:/Windows/Fonts/segoeuib.ttf",
+                      "C:/Windows/Fonts/arialbd.ttf") if os.path.exists(f)), "DejaVuSans-Bold.ttf")
 ft, fp = ImageFont.truetype(F, 34), ImageFont.truetype(F, 22)
 PW, PH = 720, 560
 panels = [("1  On the robot (front-left)", "iso_A.png", "Option A - cat-head front shell"),
@@ -17,7 +20,7 @@ panels = [("1  On the robot (front-left)", "iso_A.png", "Option A - cat-head fro
           ("6  Option B - floating face on 2 legs", "iso_B.png", "lighter, leaves the middle plate open")]
 sheet = Image.new("RGB", (3*PW + 40, 2*(PH+60) + 110), (248,248,248))
 d = ImageDraw.Draw(sheet)
-d.text((20, 22), "BalanceBot - OLED face shell  |  CONCEPT (not final sizes)", font=ft, fill=(60,40,120))
+d.text((20, 22), "BO-BOT - OLED face shell  |  CONCEPT (not final sizes)", font=ft, fill=(60,40,120))
 for i, (t, f, sub) in enumerate(panels):
     cx, cy = 20 + (i % 3) * PW, 90 + (i // 3) * (PH + 60)
     d.rounded_rectangle([cx+4, cy, cx+PW-8, cy+PH+50], radius=14, outline=(200,195,225), width=3, fill=(255,255,255))
