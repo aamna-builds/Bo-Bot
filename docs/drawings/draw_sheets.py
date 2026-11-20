@@ -1,8 +1,12 @@
-"""Engineering drawing sheets for BO-BOT (A3, third angle projection).
+"""Engineering drawing sheets for BO-BOT as built (Arduino Uno build), A3, third angle projection.
 
-All geometry comes from cad/fusion360/python/CatRobot.py (units mm, robot axes:
-x width, y up from the ground, z towards the face). Run:  python3 draw_sheets.py
-Writes sheet1-general-arrangement.png and sheet2-electronics.png next to this file.
+Sizes come from the files that made the parts:
+  base plate   cad/laser-cut/base_plate/make_base.py
+  motor clamp  cad/printed-parts/n20_clamp/n20_clamp.scad
+  spacer pins  cad/printed-parts/spacers/v3/plate_pin.scad
+Units mm. Axes: x across the robot, y up from the ground (front views), v towards the front (plan views).
+Run:  python draw_sheets.py   (writes sheet1-general-arrangement.png and sheet2-electronics.png here)
+The drawings of the first plan (ESP32, cat shell) are in archive-esp32-cat-shell/.
 """
 import math, os
 import matplotlib
@@ -11,39 +15,44 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, Circle, Polygon, FancyBboxPatch
 
 OUT = os.path.dirname(os.path.abspath(__file__))
-plt.rcParams["font.family"] = ["Inter", "DejaVu Sans"]
+plt.rcParams["font.family"] = ["Inter", "Segoe UI", "DejaVu Sans"]
 plt.rcParams["hatch.linewidth"] = 0.6
 INK = "#111111"; THIN = 0.45; MED = 0.9; THICK = 1.6
 A3W, A3H = 420, 297
+DATE = "20-11-2026"; REV = "B"
 
-# ---------------------------------------------------------------- CAD numbers
-WHEEL_D, WHEEL_W, TRACK = 34, 6.5, 70
-AX = WHEEL_D / 2                      # axle height
-P1Y, P2Y, P3Y = 22.0, 41.6, 63.2      # platform bottom faces
-PT = 1.6                              # platform thickness
-P1 = (70, 48); P2 = (70, 46); P3 = (56, 27)   # width x depth
-S1 = [(25.5, 21), (-25.5, 21), (25.5, -21), (-25.5, -21)]
-S2 = [(25.5, 0), (-25.5, 0)]
-WALL = 2.5
-
-
-def egg_s(t):
-    if t <= 0.32:
-        s = 0.82 + 0.18 * math.sin(math.pi / 2 * t / 0.32)
-    else:
-        u = (t - 0.32) / 0.68
-        s = math.sqrt(max(1 - u ** 2.2, 0.0))
-    return max(s, 0.14)
-
-
-def egg(half, inset=0.0, n=120):
-    """outline of the shell: list of (offset, y) for the right half; half = 40 (width) or 27.5 (depth)"""
-    pts = []
-    for i in range(n + 1):
-        t = i / n
-        y = 2 + 98 * t
-        pts.append((max(half * egg_s(t) - inset, 0.0), y))
-    return pts
+# ---------------------------------------------------------------- sizes (mm)
+# wheels and motors (make_base.py)
+WHEEL_D, WHEEL_W = 34.0, 6.5
+AX = WHEEL_D / 2                       # axle height
+MOTOR_PLUS_WHEEL = 50.0                # encoder end -> wheel outer face (measured)
+GAP_CENTER = 8.0                       # gap between the two encoder ends
+INNER = GAP_CENTER / 2                 # encoder end, from the centre line
+WHEEL_OUT = INNER + MOTOR_PLUS_WHEEL   # 54
+WHEEL_IN = WHEEL_OUT - WHEEL_W         # 47.5
+WHEEL_C = WHEEL_OUT - WHEEL_W / 2      # 50.75
+TRACK, OVERALL = 2 * WHEEL_C, 2 * WHEEL_OUT
+MOTOR_OUT = 36.0                       # gearbox output end (N20: encoder + can + gearbox about 32 long)
+MOTOR_W, MOTOR_H = 12.0, 10.0
+# base plate (make_base.py)
+PLATE_W, PLATE_D, CORNER_R = 89.0, 62.0, 5.0
+M3 = 3.4
+HOLE_U, HOLE_V = 38.0, 23.0
+SLOT_U, SLOT_V, SLOT_TRAVEL = INNER + 22.0, 10.0, 7.0
+WIRE_W, WIRE_H, WIRE_V = 18.0, 6.0, -24.5
+ENC_U0, ENC_U1, ENC_H, ENC_R = 3.0, 16.0, 16.0, 1.5
+BASE_T = 3.0
+# motor clamp (n20_clamp.scad)
+CL_L, CL_B, CL_SP = 20.0, 28.0, 20.0
+CL_WALL, CL_SQUEEZE, CL_FIT = 2.5, 0.25, 0.35
+CL_HALF = CL_WALL + MOTOR_H / 2 - CL_SQUEEZE       # 7.25, height of each half
+# stack (plate_pin.scad v3: 17 mm gap, 4 mm decks)
+GAP, DECK_T = 17.0, 4.0
+Y_BASE = AX + CL_HALF                  # underside of the base plate
+Y_D2 = Y_BASE + BASE_T + GAP           # underside of deck 2 (battery)
+Y_D3 = Y_D2 + DECK_T + GAP             # underside of deck 3 (Uno)
+BATT = (68.0, 37.0, 12.0)
+UNO_L, UNO_W, UNO_PCB, UNO_H = 68.6, 53.4, 1.6, 12.5   # board, PCB thickness, height over PCB (headers, USB)
 
 
 # ---------------------------------------------------------------- drawing helpers
@@ -51,9 +60,8 @@ def new_sheet():
     fig = plt.figure(figsize=(A3W / 25.4, A3H / 25.4), dpi=200)
     ax = fig.add_axes([0, 0, 1, 1]); ax.set_xlim(0, A3W); ax.set_ylim(0, A3H); ax.axis("off")
     ax.add_patch(Rectangle((0, 0), A3W, A3H, fc="white", ec="none"))
-    ax.add_patch(Rectangle((20, 10), A3W - 30, A3H - 20, fc="none", ec=INK, lw=1.6))   # border (binding margin left)
+    ax.add_patch(Rectangle((20, 10), A3W - 30, A3H - 20, fc="none", ec=INK, lw=1.6))
     ax.add_patch(Rectangle((15, 5), A3W - 20, A3H - 10, fc="none", ec=INK, lw=0.5))
-    # zone marks
     for i in range(1, 8):
         x = 20 + i * (A3W - 30) / 8
         ax.plot([x, x], [10, 14], color=INK, lw=0.5); ax.plot([x, x], [A3H - 10, A3H - 14], color=INK, lw=0.5)
@@ -72,15 +80,27 @@ def line(ax, pts, lw=MED, ls="-", c=INK, z=3):
 
 
 def rect(ax, x0, y0, x1, y1, lw=MED, ls="-", fc="none", hatch=None, z=3, ec=INK):
+    x0, x1 = sorted((x0, x1)); y0, y1 = sorted((y0, y1))
     ax.add_patch(Rectangle((x0, y0), x1 - x0, y1 - y0, fc=fc, ec=ec, lw=lw, ls=ls, hatch=hatch, zorder=z))
+
+
+def rrect(ax, cx, cy, w, h, r, lw=MED, ls="-", fc="none", z=3):
+    ax.add_patch(FancyBboxPatch((cx - w / 2 + r, cy - h / 2 + r), w - 2 * r, h - 2 * r, boxstyle=f"round,pad={r}",
+                                fc=fc, ec=INK, lw=lw, ls=ls, zorder=z))
+
+
+def obround(ax, cx, cy, travel, width, lw=MED, z=4):
+    """slot with round ends; travel = centre to centre, horizontal"""
+    r = width / 2
+    ax.add_patch(FancyBboxPatch((cx - travel / 2, cy), travel, 0, boxstyle=f"round,pad={r}", fc="white", ec=INK, lw=lw, zorder=z))
 
 
 def centre(ax, x0, y0, x1, y1):
     ax.plot([x0, x1], [y0, y1], color=INK, lw=THIN, ls=(0, (8, 2, 1.5, 2)), zorder=2)
 
 
-def txt(ax, x, y, s, size=7, ha="left", va="center", weight="normal", rot=0, style="normal", color=INK):
-    ax.text(x, y, s, fontsize=size, ha=ha, va=va, fontweight=weight, rotation=rot, fontstyle=style, color=color, zorder=6)
+def txt(ax, x, y, s, size=7, ha="left", va="center", weight="normal", rot=0, color=INK):
+    ax.text(x, y, s, fontsize=size, ha=ha, va=va, fontweight=weight, rotation=rot, color=color, zorder=7)
 
 
 def arrow(ax, p, q):
@@ -88,28 +108,26 @@ def arrow(ax, p, q):
                                                    color=INK, lw=0.5, shrinkA=0, shrinkB=0), zorder=5)
 
 
-def dim_h(ax, x1, x2, y, label, off=-9, ext_from=None, size=7, label_dx=0):
-    """horizontal dimension between x1 and x2 at feature height y; dimension line placed at y+off"""
-    yd = y + off
-    s = 1 if off > 0 else -1
-    for x in (x1, x2):
-        ax.plot([x, x], [y + s * 1.2, yd + s * 1.5], color=INK, lw=THIN, zorder=2)
+def dim_h(ax, x1, x2, y, label, off=-9, size=6.5, ext=True):
+    yd = y + off; s = 1 if off > 0 else -1
+    if ext:
+        for x in (x1, x2):
+            ax.plot([x, x], [y + s * 1.2, yd + s * 1.5], color=INK, lw=THIN, zorder=2)
     arrow(ax, ((x1 + x2) / 2, yd), (x1, yd)); arrow(ax, ((x1 + x2) / 2, yd), (x2, yd))
     ax.plot([x1, x2], [yd, yd], color=INK, lw=THIN, zorder=2)
-    txt(ax, (x1 + x2) / 2 + label_dx, yd + s * 2.2, label, size, ha="center")
+    txt(ax, (x1 + x2) / 2, yd + s * 2.2, label, size, ha="center")
 
 
-def dim_v(ax, y1, y2, x, label, off=-9, size=7, label_dy=0):
-    xd = x + off
-    s = 1 if off > 0 else -1
+def dim_v(ax, y1, y2, x, label, off=-9, size=6.5):
+    xd = x + off; s = 1 if off > 0 else -1
     for y in (y1, y2):
         ax.plot([x + s * 1.2, xd + s * 1.5], [y, y], color=INK, lw=THIN, zorder=2)
     arrow(ax, (xd, (y1 + y2) / 2), (xd, y1)); arrow(ax, (xd, (y1 + y2) / 2), (xd, y2))
     ax.plot([xd, xd], [y1, y2], color=INK, lw=THIN, zorder=2)
-    txt(ax, xd - s * 2.4, (y1 + y2) / 2 + label_dy, label, size, ha="center", rot=90)
+    txt(ax, xd - s * 2.4, (y1 + y2) / 2, label, size, ha="center", rot=90)
 
 
-def leader(ax, tip, text_xy, label, size=6.5, ha="left"):
+def leader(ax, tip, text_xy, label, size=6, ha="left"):
     arrow(ax, text_xy, tip)
     txt(ax, text_xy[0] + (1.2 if ha == "left" else -1.2), text_xy[1], label, size, ha=ha)
 
@@ -117,30 +135,28 @@ def leader(ax, tip, text_xy, label, size=6.5, ha="left"):
 def view_title(ax, x, y, name, scale="SCALE 1 : 1"):
     txt(ax, x, y, name, 9, ha="center", weight="bold")
     txt(ax, x, y - 4.6, scale, 6.5, ha="center")
-    ax.plot([x - 22, x + 22], [y - 2.3, y - 2.3], color=INK, lw=0.7)
+    ax.plot([x - 24, x + 24], [y - 2.3, y - 2.3], color=INK, lw=0.7)
 
 
 def balloon(ax, x, y, n, tip):
     ax.add_patch(Circle((x, y), 3.1, fc="white", ec=INK, lw=0.7, zorder=6))
-    txt(ax, x, y, str(n), 6.5, ha="center", weight="bold")
+    txt(ax, x, y, str(n), 6.3, ha="center", weight="bold")
     d = math.hypot(tip[0] - x, tip[1] - y)
-    p = (x + (tip[0] - x) * 3.1 / d, y + (tip[1] - y) * 3.1 / d)
-    arrow(ax, p, tip)
+    arrow(ax, (x + (tip[0] - x) * 3.1 / d, y + (tip[1] - y) * 3.1 / d), tip)
 
 
-def table(ax, x0, y_top, colw, rows, rowh=6.4, header=True, size=6.3, bold_first_row=True, aligns=None):
-    n = len(rows)
-    W = sum(colw)
+def table(ax, x0, y_top, colw, rows, rowh=6.0, size=6.0, aligns=None):
+    n = len(rows); W = sum(colw)
     ax.add_patch(Rectangle((x0, y_top - n * rowh), W, n * rowh, fc="white", ec=INK, lw=1.0, zorder=2))
     for i, r in enumerate(rows):
         y = y_top - (i + .5) * rowh
         if i > 0:
-            ax.plot([x0, x0 + W], [y_top - i * rowh] * 2, color=INK, lw=0.5 if i > 1 or not header else 1.0, zorder=3)
+            ax.plot([x0, x0 + W], [y_top - i * rowh] * 2, color=INK, lw=1.0 if i == 1 else 0.5, zorder=3)
         cx = x0
         for j, c in enumerate(r):
-            al = (aligns[j] if aligns else "left")
+            al = aligns[j] if aligns else "left"
             tx = cx + 1.6 if al == "left" else cx + colw[j] / 2
-            txt(ax, tx, y, str(c), size, ha=al, weight="bold" if (i == 0 and header and bold_first_row) else "normal")
+            txt(ax, tx, y, str(c), size, ha=al, weight="bold" if i == 0 else "normal")
             cx += colw[j]
     cx = x0
     for w in colw[:-1]:
@@ -158,12 +174,11 @@ def title_block(ax, title, sub, sheet, dwg):
     txt(ax, x0 + 3, y0 + h - 4, "TITLE", 5, color="#444"); txt(ax, x0 + 3, y0 + h - 12, title, 11, weight="bold")
     txt(ax, x0 + 3, y0 + 30.5, sub, 7)
     txt(ax, x0 + 123, y0 + h - 4, "DRAWING NO.", 5, color="#444"); txt(ax, x0 + 123, y0 + h - 12, dwg, 10, weight="bold")
-    txt(ax, x0 + 123, y0 + 30.5, "REV  A", 7)
-    cells = [("DRAWN BY", "Aamna Khan", 0, 13), ("DATE", "11-11-2026", 60, 13), ("SCALE", "as noted", 120, 13),
+    txt(ax, x0 + 123, y0 + 30.5, f"REV  {REV}", 7)
+    cells = [("DRAWN BY", "Aamna Khan", 0, 13), ("DATE", DATE, 60, 13), ("SCALE", "as noted", 120, 13),
              ("CHECKED", "", 0, 0), ("UNITS", "mm", 60, 0), ("SHEET", sheet, 120, 0)]
     for lab, val, dx, dy in cells:
         txt(ax, x0 + dx + 3, y0 + dy + 10.5, lab, 4.8, color="#444"); txt(ax, x0 + dx + 3, y0 + dy + 4.6, val, 7.5)
-    # projection symbol (third angle)
     px, py = x0 + 150, y0 + 6.5
     ax.add_patch(Polygon([[px - 7, py - 4.2], [px - 7, py + 4.2], [px + 2, py + 2.4], [px + 2, py - 2.4]], fc="none", ec=INK, lw=0.7, zorder=6))
     ax.add_patch(Circle((px + 13, py), 4.2, fc="none", ec=INK, lw=0.7, zorder=6)); ax.add_patch(Circle((px + 13, py), 2.0, fc="none", ec=INK, lw=0.7, zorder=6))
@@ -171,186 +186,205 @@ def title_block(ax, title, sub, sheet, dwg):
     txt(ax, px + 3, py + 8.4, "THIRD ANGLE", 4.6, ha="center", color="#444")
 
 
+def ground(ax, x0, x1, y):
+    line(ax, [(x0, y), (x1, y)], THICK)
+    x = x0 + 3
+    while x < x1:
+        ax.plot([x, x - 2.4], [y, y - 2.4], color=INK, lw=0.4, zorder=2); x += 5
+
+
+def wheel_side(ax, cx, cy):
+    ax.add_patch(Circle((cx, cy), WHEEL_D / 2, fc="white", ec=INK, lw=MED, zorder=6))
+    ax.add_patch(Circle((cx, cy), 13, fc="none", ec=INK, lw=THIN, zorder=6))
+    ax.add_patch(Circle((cx, cy), 1.5, fc="none", ec=INK, lw=MED, zorder=6))
+    for k in range(3):
+        th = 2 * math.pi * k / 3 + math.pi / 2
+        line(ax, [(cx + 2.5 * math.cos(th), cy + 2.5 * math.sin(th)), (cx + 12 * math.cos(th), cy + 12 * math.sin(th))], THIN, z=6)
+
+
 # ================================================================== SHEET 1
 def sheet1():
     fig, ax = new_sheet()
-    GX, GY = 100, 62          # ground, centre line of the front view
-    # -------- FRONT VIEW (section A-A through the centre plane) -------
-    outer = egg(40); inner = egg(40, WALL)
-    # shell walls hatched, with the inner profile starting at y=2 (open bottom) and closed top shell above y=100
-    def mirror(pts, sx): return [(GX + sx * x, GY + y) for x, y in pts]
-    for sx in (1, -1):
-        wall = mirror(outer, sx) + list(reversed(mirror(inner[:-1] if False else inner, sx)))
-        ax.add_patch(Polygon(wall, fc="none", ec="none", hatch="//////", zorder=2))
-        line(ax, mirror(outer, sx), THICK); line(ax, mirror(inner, sx), MED)
-        line(ax, [mirror(outer, sx)[0], mirror(inner, sx)[0]], MED)
-    line(ax, [(GX - outer[-1][0], GY + 102), (GX + outer[-1][0], GY + 102)], THICK)          # top of the egg
-    # ears (outside the section plane, shown as outline)
-    for sx in (1, -1):
-        e = [(GX + sx * 6, GY + 99), (GX + sx * 24, GY + 87), (GX + sx * 22, GY + 110), (GX + sx * 15, GY + 104)]
-        line(ax, [(GX + sx * 24, GY + 85.5), (GX + sx * 22, GY + 110.3), (GX + sx * 10, GY + 98.5)], MED)
-        line(ax, [(GX + sx * 21.2, GY + 106), (GX + sx * 15.5, GY + 88)], THIN, ls=(0, (4, 2)))
-    # wheel arches in the lower shell are cut for the wheels: show wheels
-    for sx in (1, -1):
-        xc = GX + sx * 35
-        rect(ax, xc - WHEEL_W / 2, GY, xc + WHEEL_W / 2, GY + WHEEL_D, MED, fc="white", z=4)
-        rect(ax, xc - WHEEL_W / 2 + 0.75, GY + 4, xc + WHEEL_W / 2 - 0.75, GY + WHEEL_D - 4, THIN, z=5)
-        line(ax, [(xc - 0.8 * sx, GY + AX - 1.5), (xc - 0.8 * sx, GY + AX + 1.5)], THIN, z=5)
-        # motor: gearbox + motor + encoder (cut plane, hatched thin)
-        gx0, gx1 = sorted((GX + sx * 16, GX + sx * 26)); rect(ax, gx0, GY + AX - 5, gx1, GY + AX + 5, MED, hatch="||||", z=3, fc="white")
-        mx0, mx1 = sorted((GX + sx * 3, GX + sx * 16)); rect(ax, mx0, GY + AX - 5, mx1, GY + AX + 5, MED, fc="white", z=3)
-        line(ax, [(GX + sx * 26, GY + AX), (GX + sx * 35.5, GY + AX)], MED)
-    # platforms (cut) and standoffs
-    def plat(y0, W):
-        rect(ax, GX - W / 2, GY + y0, GX + W / 2, GY + y0 + PT, MED, fc="black", z=4)
-    plat(P1Y, P1[0]); plat(P2Y, P2[0]); plat(P3Y, P3[0])
-    for x in (25.5, -25.5):   # standoffs L1 (behind plane, hidden-ish) and L2 (cut)
-        rect(ax, GX + x - 2.75, GY + P1Y + PT, GX + x + 2.75, GY + P2Y, THIN, fc="white", z=3)
-        rect(ax, GX + x - 2.75, GY + P2Y + PT, GX + x + 2.75, GY + P3Y, MED, fc="white", hatch="////", z=3)
-    # battery (cut) with strap
-    rect(ax, GX - 34, GY + 23.6, GX + 34, GY + 35.6, MED, fc="white", hatch="....", z=3)
-    rect(ax, GX - 4, GY + 23.6, GX + 4, GY + 35.6, MED, fc="white", z=3)
-    # ESP32 on platform 3, OLED + bezel at the front (z+), seen from the side edge in the plane
-    rect(ax, GX - 25.5, GY + P3Y + PT, GX + 25.5, GY + P3Y + PT + 1.6, MED, fc="black", z=4)
-    rect(ax, GX - 17.7, GY + 47.75, GX + 17.7, GY + 81.25, MED, ls=(0, (5, 2)), z=3)        # OLED board (behind, z=15.8)
-    rect(ax, GX - 15.2, GY + 59.6, GX + 15.2, GY + 74.4, MED, z=3)                               # window in the shell, 30.4 x 15.2 at y=67
-    # centre lines
-    centre(ax, GX, GY - 8, GX, GY + 116); centre(ax, GX - 52, GY + AX, GX + 52, GY + AX)
-    line(ax, [(GX - 58, GY), (GX + 58, GY)], THICK)                                          # ground
-    for i in range(-11, 12): ax.plot([GX + i * 5, GX + i * 5 - 2.4], [GY, GY - 2.4], color=INK, lw=0.4, zorder=2)
+
+    # -------- FRONT VIEW (from the face side; faceplate removed) --------
+    GX, GY = 97, 166
+    X = lambda u: GX + u
+    Y = lambda y: GY + y
+    for s in (1, -1):
+        # wheel (rectangle in this view) and hub
+        rect(ax, X(s * WHEEL_IN), Y(0), X(s * WHEEL_OUT), Y(WHEEL_D), MED, fc="white", z=4)
+        rect(ax, X(s * (WHEEL_IN + 0.8)), Y(4), X(s * (WHEEL_OUT - 0.8)), Y(WHEEL_D - 4), THIN, z=5)
+        # motor: encoder end + can (visible), clamp in front of the gearbox, shaft to the wheel
+        rect(ax, X(s * INNER), Y(AX - MOTOR_H / 2), X(s * (INNER + 22 - CL_L / 2)), Y(AX + MOTOR_H / 2), MED, fc="white", z=3)
+        rect(ax, X(s * INNER), Y(AX - 6), X(s * (INNER + 1.2)), Y(AX + 6), MED, fc="white", z=4)       # encoder disc / board
+        line(ax, [(X(s * MOTOR_OUT), Y(AX)), (X(s * WHEEL_IN), Y(AX))], MED)
+        cx0, cx1 = SLOT_U - CL_L / 2, SLOT_U + CL_L / 2
+        rect(ax, X(s * cx0), Y(AX + CL_SQUEEZE), X(s * cx1), Y(Y_BASE), MED, fc="white", z=4)          # top saddle
+        rect(ax, X(s * cx0), Y(AX - CL_SQUEEZE), X(s * cx1), Y(AX - CL_HALF), MED, fc="white", z=4)    # bottom cap
+        # spacer pins (two gaps)
+        for y0 in (Y_BASE + BASE_T, Y_D2 + DECK_T):
+            rect(ax, X(s * HOLE_U - 3.5), Y(y0), X(s * HOLE_U + 3.5), Y(y0 + GAP), MED, fc="white", hatch="////", z=3)
+    # plates
+    rect(ax, X(-PLATE_W / 2), Y(Y_BASE), X(PLATE_W / 2), Y(Y_BASE + BASE_T), MED, fc="black", z=5)
+    rect(ax, X(-PLATE_W / 2), Y(Y_D2), X(PLATE_W / 2), Y(Y_D2 + DECK_T), MED, fc="black", z=5)
+    rect(ax, X(-PLATE_W / 2), Y(Y_D3), X(PLATE_W / 2), Y(Y_D3 + DECK_T), MED, fc="black", z=5)
+    # battery on deck 2
+    yb = Y_D2 + DECK_T
+    rect(ax, X(-BATT[0] / 2), Y(yb), X(BATT[0] / 2), Y(yb + BATT[2]), MED, fc="white", hatch="....", z=4)
+    # Uno on deck 3: PCB + parts above it
+    yu = Y_D3 + DECK_T
+    rect(ax, X(-UNO_W / 2), Y(yu), X(UNO_W / 2), Y(yu + UNO_PCB), MED, fc="#555", z=5)
+    rect(ax, X(-UNO_W / 2 + 1), Y(yu + UNO_PCB), X(-UNO_W / 2 + 4), Y(yu + UNO_H), MED, fc="white", z=4)   # header
+    rect(ax, X(UNO_W / 2 - 4), Y(yu + UNO_PCB), X(UNO_W / 2 - 1), Y(yu + UNO_H), MED, fc="white", z=4)     # header
+    rect(ax, X(-9), Y(yu + UNO_PCB), X(9), Y(yu + UNO_PCB + 3.5), THIN, fc="white", z=4)                   # chip
+    centre(ax, GX, GY - 6, GX, GY + 98); centre(ax, GX - 60, GY + AX, GX + 60, GY + AX)
+    ground(ax, GX - 62, GX + 62, GY)
     # dimensions
-    dim_v(ax, GY, GY + 110, GX - 58, "110", off=-12)
-    dim_v(ax, GY, GY + AX, GX + 58, "17", off=10)
-    dim_h(ax, GX - 40, GX + 40, GY + 33, "80", off=85)            # overall width at the widest section
-    dim_h(ax, GX - 35, GX + 35, GY, f"{TRACK}  (track, centre to centre)", off=-17, label_dx=0)
-    dim_h(ax, GX + 35 - WHEEL_W / 2, GX + 35 + WHEEL_W / 2, GY, "6.5", off=-7, size=6.2)
-    dim_v(ax, GY + P1Y, GY + P2Y, GX + 38, "18", off=13, label_dy=0)
-    dim_v(ax, GY + P2Y + PT, GY + P3Y, GX + 38, "20", off=13, label_dy=0)
-    view_title(ax, GX, 31 + 0, "SECTION A-A  (FRONT)", "SCALE 1 : 1")
-    # balloons
-    balloon(ax, GX - 55, GY + 98, 1, (GX - 14, GY + 94)); balloon(ax, GX - 59, GY + 52, 2, (GX - 31.5, GY + 50))
-    balloon(ax, GX + 70, GY + 80, 5, (GX + 25, GY + P3Y + 0.8)); balloon(ax, GX + 70, GY + 56, 4, (GX + 34.5, GY + 42.4))
-    balloon(ax, GX + 70, GY + 30, 3, (GX + 33, GY + 22.8)); balloon(ax, GX - 55, GY + 29, 10, (GX - 32, GY + 29))
-    balloon(ax, GX - 55, GY + 12, 8, (GX - 22, GY + 15)); balloon(ax, GX + 62, GY + 8, 9, (GX + 37, GY + 9))
-    balloon(ax, GX - 62, GY + 70, 11, (GX - 24, GY + 66))
+    dim_h(ax, X(-WHEEL_C), X(WHEEL_C), GY, f"{TRACK:.1f}  (track)", off=-10)
+    dim_h(ax, X(-WHEEL_OUT), X(WHEEL_OUT), GY, f"{OVERALL:.0f}", off=-18)
+    dim_h(ax, X(-PLATE_W / 2), X(PLATE_W / 2), Y(Y_D3 + DECK_T), f"{PLATE_W:.0f}", off=30)
+    dim_h(ax, X(-UNO_W / 2), X(UNO_W / 2), Y(yu + UNO_H), f"{UNO_W}", off=4, size=6)
+    dim_v(ax, GY, Y(Y_BASE), X(-WHEEL_OUT), f"{Y_BASE:.1f}", off=-5, size=6)
+    dim_v(ax, Y(Y_BASE + BASE_T), Y(Y_D2), X(-PLATE_W / 2), f"{GAP:.0f}", off=-14, size=6)
+    dim_v(ax, Y(Y_D2 + DECK_T), Y(Y_D3), X(-PLATE_W / 2), f"{GAP:.0f}", off=-14, size=6)
+    dim_v(ax, GY, Y(Y_D3 + DECK_T), X(-WHEEL_OUT), f"{Y_D3 + DECK_T:.1f}", off=-12.5, size=6)
+    # balloons (right side, in height order)
+    for n, by, tip in ((13, 92, (20, yu + UNO_PCB / 2)), (3, 80, (40, Y_D3 + DECK_T / 2)), (11, 68, (30, yb + 6)),
+                       (2, 56, (40, Y_D2 + DECK_T / 2)), (4, 44, (HOLE_U + 3.5, Y_BASE + BASE_T + 12)),
+                       (1, 34, (42, Y_BASE + BASE_T / 2)), (5, 22, (30, AX - 4)), (9, 12, (12, AX + 2)), (10, 2, (52, 5))):
+        balloon(ax, X(70), Y(by), n, (X(tip[0]), Y(tip[1])))
+    view_title(ax, GX, 137, "FRONT VIEW  (FACEPLATE REMOVED)")
 
-    # -------- SIDE VIEW (from the right: face is on the right) -------
-    SX = 205
-    so = egg(27.5); si = egg(27.5, WALL)
-    # outer silhouette (external view): full outline
-    full = [(SX - x, GY + y) for x, y in so] + [(SX + x, GY + y) for x, y in reversed(so)]
-    line(ax, full + [full[0]], THICK)
-    line(ax, [(SX - so[0][0], GY + 2), (SX + so[0][0], GY + 2)], THICK)
-    line(ax, [(SX - so[-1][0], GY + 100), (SX + so[-1][0], GY + 100)], MED)
-    # ears: seen edge-on (thin, 4.5 thick)
-    line(ax, [(SX - 2.25, GY + 96), (SX - 2.25, GY + 109), (SX + 2.25, GY + 109), (SX + 2.25, GY + 96)], MED)
-    # wheel (right side wheel, in front of the shell)
-    ax.add_patch(Circle((SX, GY + AX), 17, fc="white", ec=INK, lw=MED, zorder=5))
-    ax.add_patch(Circle((SX, GY + AX), 13, fc="none", ec=INK, lw=THIN, zorder=5))
-    ax.add_patch(Circle((SX, GY + AX), 1.5, fc="none", ec=INK, lw=MED, zorder=5))
-    for k in range(5):
-        th = 2 * math.pi * k / 5 + math.pi / 2
-        ax.add_patch(Circle((SX + 8.2 * math.cos(th), GY + AX + 8.2 * math.sin(th)), 2.6, fc="none", ec=INK, lw=THIN, zorder=5))
-    # OLED window + bezel on the face (right side), bezel 5.3 thick, window 30.4 x 15.2 wide
-    rect(ax, SX + 22.1, GY + 55.5, SX + 27.4, GY + 78.5, MED, z=4)
-    # hidden: platforms and battery (dashed)
-    for y0, d in ((P1Y, P1[1]), (P2Y, P2[1]), (P3Y, P3[1])):
-        rect(ax, SX - d / 2, GY + y0, SX + d / 2, GY + y0 + PT, THIN, ls=(0, (4, 2)), z=1)
-    rect(ax, SX - 18.5, GY + 23.6, SX + 18.5, GY + 35.6, THIN, ls=(0, (4, 2)), z=1)
-    # bow tie
-    rect(ax, SX + 25, GY + 43, SX + 31.5, GY + 49, THIN, z=4)
-    centre(ax, SX, GY - 8, SX, GY + 116); centre(ax, SX - 42, GY + AX, SX + 42, GY + AX)
-    line(ax, [(SX - 48, GY), (SX + 48, GY)], THICK)
-    for i in range(-9, 10): ax.plot([SX + i * 5, SX + i * 5 - 2.4], [GY, GY - 2.4], color=INK, lw=0.4, zorder=2)
-    dim_h(ax, SX - 27.5, SX + 27.5, GY + 33, "55", off=85)
-    dim_h(ax, SX - 17, SX + 17, GY, f"Ø{WHEEL_D}", off=-11)
-    dim_v(ax, GY, GY + 110, SX + 40, "110", off=16)
-    dim_v(ax, GY + 59.6, GY + 74.4, SX + 27.4, "15.2", off=7, size=6.2)
-    leader(ax, (SX + 24.7, GY + 72), (SX + 33, GY + 96), "OLED window", 6.2)
-    txt(ax, SX + 34.2, GY + 92, "30.4 x 15.2", 6.2)
-    leader(ax, (SX + 31.5, GY + 46), (SX + 36, GY + 38), "bow tie", 6.2)
-    view_title(ax, SX, 31, "SIDE VIEW  (FROM RIGHT)", "SCALE 1 : 1")
+    # -------- SIDE VIEW (from the right; front of the robot to the right) --------
+    SX = 214
+    Z = lambda v: SX + v
+    for v in (HOLE_V, -HOLE_V):
+        for y0 in (Y_BASE + BASE_T, Y_D2 + DECK_T):
+            rect(ax, Z(v - 3.5), Y(y0), Z(v + 3.5), Y(y0 + GAP), MED, fc="white", hatch="////", z=3)
+    for y0, t in ((Y_BASE, BASE_T), (Y_D2, DECK_T), (Y_D3, DECK_T)):
+        rect(ax, Z(-PLATE_D / 2), Y(y0), Z(PLATE_D / 2), Y(y0 + t), MED, fc="black", z=5)
+    rect(ax, Z(-BATT[1] / 2), Y(yb), Z(BATT[1] / 2), Y(yb + BATT[2]), MED, fc="white", hatch="....", z=4)
+    rect(ax, Z(-UNO_L / 2), Y(yu), Z(UNO_L / 2), Y(yu + UNO_PCB), MED, fc="#555", z=5)
+    rect(ax, Z(-UNO_L / 2 + 6), Y(yu + UNO_PCB), Z(UNO_L / 2 - 6), Y(yu + UNO_H - 4), THIN, ls=(0, (4, 2)), z=4)
+    rect(ax, Z(-CL_B / 2), Y(AX - CL_HALF), Z(CL_B / 2), Y(Y_BASE), THIN, ls=(0, (4, 2)), z=2)   # clamp, behind the wheel
+    wheel_side(ax, SX, GY + AX)
+    centre(ax, SX, GY - 6, SX, GY + 98); centre(ax, SX - 42, GY + AX, SX + 42, GY + AX)
+    ground(ax, SX - 44, SX + 44, GY)
+    dim_h(ax, Z(-PLATE_D / 2), Z(PLATE_D / 2), Y(Y_D3 + DECK_T), f"{PLATE_D:.0f}", off=30, size=6)
+    dim_h(ax, Z(-UNO_L / 2), Z(UNO_L / 2), Y(yu + UNO_PCB), f"{UNO_L}", off=14.5, size=6)
+    dim_h(ax, Z(-WHEEL_D / 2), Z(WHEEL_D / 2), GY, f"Ø{WHEEL_D:.0f}", off=-10)
+    dim_v(ax, GY, Y(AX), Z(-PLATE_D / 2), f"{AX:.0f}", off=-5, size=6)
+    txt(ax, Z(PLATE_D / 2 + 3), Y(50), "FRONT", 6.5, weight="bold"); arrow(ax, (Z(PLATE_D / 2 + 3), Y(45)), (Z(PLATE_D / 2 + 13), Y(45)))
+    view_title(ax, SX, 137, "SIDE VIEW  (FROM RIGHT)")
 
-    # -------- TOP VIEW -------
-    TX, TY = 100, 241
-    # shell max section 80 x 55 (the widest layer, y = 33) drawn as rounded rectangle
-    ax.add_patch(FancyBboxPatch((TX - 40 + 12, TY - 27.5 + 12), 80 - 24, 55 - 24, boxstyle="round,pad=12,rounding_size=12", fc="none", ec=INK, lw=THICK, zorder=3))
-    # inside the top at y=100 the egg is small: show its outline
-    ax.add_patch(FancyBboxPatch((TX - 5.6 + 1.5, TY - 3.85 + 1.5), 11.2 - 3, 7.7 - 3, boxstyle="round,pad=1.5,rounding_size=1.5", fc="none", ec=INK, lw=MED, zorder=3))
-    for sx in (1, -1):
-        rect(ax, TX + sx * 35 - WHEEL_W / 2, TY - 17, TX + sx * 35 + WHEEL_W / 2, TY + 17, MED, ls=(0, (4, 2)), z=2)
-        rect(ax, TX + sx * 35 - WHEEL_W / 2, TY - 17, TX + sx * 35 + WHEEL_W / 2, TY + 17, MED, ls="none", z=1)
-    # ears
-    for sx in (1, -1): rect(ax, TX + sx * 18 - 7, TY - 2.25, TX + sx * 18 + 7, TY + 2.25, MED, z=4, fc="white")
-    # OLED window (front = up)
-    rect(ax, TX - 19, TY + 21, TX + 19, TY + 26.4, MED, z=4)
-    centre(ax, TX, TY - 36, TX, TY + 36); centre(ax, TX - 50, TY, TX + 50, TY)
-    dim_h(ax, TX - 40, TX + 40, TY + 27.5, "80", off=10)
-    dim_v(ax, TY - 27.5, TY + 27.5, TX + 40, "55", off=19)
-    dim_h(ax, TX - 35, TX + 35, TY - 27.5, "70", off=-10)
-    txt(ax, TX - 44, TY + 29, "FRONT", 6.5, ha="right", weight="bold"); arrow(ax, (TX - 52, TY + 22), (TX - 52, TY + 34))
-    view_title(ax, TX, TY - 47, "TOP VIEW", "SCALE 1 : 1")
-    line(ax, [(TX - 52, TY), (TX - 47, TY)], 1.4); line(ax, [(TX + 47, TY), (TX + 52, TY)], 1.4)
-    txt(ax, TX - 55, TY + 4, "A", 8, weight="bold"); txt(ax, TX + 56, TY + 4, "A", 8, weight="bold")
+    # -------- TOP VIEW of the base plate (the laser-cut part) --------
+    TX, TY = 97, 74
+    U = lambda u: TX + u
+    V = lambda v: TY + v
+    for s in (1, -1):
+        rect(ax, U(s * WHEEL_IN), V(-WHEEL_D / 2), U(s * WHEEL_OUT), V(WHEEL_D / 2), THIN, ls=(0, (4, 2)), z=2)
+        rect(ax, U(s * INNER), V(-MOTOR_W / 2), U(s * MOTOR_OUT), V(MOTOR_W / 2), THIN, ls=(0, (4, 2)), z=2)
+    rrect(ax, TX, TY, PLATE_W, PLATE_D, CORNER_R, THICK, z=3)
+    for su in (-1, 1):
+        for sv in (-1, 1):
+            ax.add_patch(Circle((U(su * HOLE_U), V(sv * HOLE_V)), M3 / 2, fc="white", ec=INK, lw=MED, zorder=4))
+            obround(ax, U(su * SLOT_U), V(sv * SLOT_V), SLOT_TRAVEL, M3)
+        rrect(ax, U(su * (ENC_U0 + ENC_U1) / 2), TY, ENC_U1 - ENC_U0, ENC_H, ENC_R, MED, fc="white", z=4)
+    obround(ax, TX, V(WIRE_V), WIRE_W - WIRE_H, WIRE_H)
+    centre(ax, U(-60), TY, U(60), TY); centre(ax, TX, V(-38), TX, V(38))
+    dim_h(ax, U(-PLATE_W / 2), U(PLATE_W / 2), V(PLATE_D / 2), f"{PLATE_W:.0f}", off=12)
+    dim_h(ax, U(-HOLE_U), U(HOLE_U), V(HOLE_V), f"{2 * HOLE_U:.0f}", off=10)
+    dim_h(ax, U(-WHEEL_C), U(WHEEL_C), V(-WHEEL_D / 2), f"{TRACK:.1f}  (track)", off=-22)
+    dim_v(ax, V(-PLATE_D / 2), V(PLATE_D / 2), U(PLATE_W / 2), f"{PLATE_D:.0f}", off=15)
+    dim_v(ax, V(-HOLE_V), V(HOLE_V), U(-HOLE_U), f"{2 * HOLE_V:.0f}", off=-23)
+    dim_v(ax, V(-SLOT_V), V(SLOT_V), U(SLOT_U + 5), f"{2 * SLOT_V:.0f}", off=4, size=5.8)
+    leader(ax, (U(HOLE_U + 1.2), V(HOLE_V + 1.2)), (U(64), V(36)), "4 x Ø3.4 (M3)")
+    leader(ax, (U(SLOT_U + 5), V(SLOT_V + 1)), (U(64), V(27)), f"4 slots 3.4 wide, {SLOT_TRAVEL:.0f} travel,")
+    txt(ax, U(65.2), V(22.5), f"centres at ±{SLOT_U:.0f}, ±{SLOT_V:.0f}", 6)
+    leader(ax, (U(ENC_U1 - 1), V(-ENC_H / 2 + 1)), (U(64), V(-12)), f"2 encoder windows {ENC_U1 - ENC_U0:.0f} x {ENC_H:.0f},")
+    txt(ax, U(65.2), V(-16.5), f"{ENC_U0:.0f} to {ENC_U1:.0f} from the centre line, R{ENC_R}", 6)
+    leader(ax, (U(WIRE_W / 2 - 1), V(WIRE_V - 1)), (U(64), V(-27)), f"wire slot {WIRE_W:.0f} x {WIRE_H:.0f},")
+    txt(ax, U(65.2), V(-31.5), f"centre {abs(WIRE_V)} behind the axle", 6)
+    leader(ax, (U(-PLATE_W / 2 + 1.6), V(PLATE_D / 2 - 1.6)), (U(-62), V(40)), f"R{CORNER_R:.0f}", ha="right")
+    txt(ax, U(-58), V(27), "FRONT", 6.5, ha="center", weight="bold"); arrow(ax, (U(-58), V(12)), (U(-58), V(24)))
+    txt(ax, TX, V(-PLATE_D / 2 - 3.5), "grey dashed: motors and wheels under the plate", 5.5, ha="center", color="#555")
+    view_title(ax, TX, 19, "BASE PLATE  (TOP VIEW, LASER CUT)")
 
-    # -------- DETAIL B: OLED window at 2:1 -------
-    DX, DY, k = 345, 232, 2.0
-    def R(cx, cy, w, h, **kw): rect(ax, DX + (cx - w / 2) * k, DY + (cy - h / 2) * k, DX + (cx + w / 2) * k, DY + (cy + h / 2) * k, **kw)
-    R(0, 0, 38, 23, lw=THICK)                       # bezel
-    R(0, 0, 30.4, 15.2, lw=MED)                     # window
-    R(0, 0, 29.42, 14.7, lw=THIN, ls=(0, (3, 2)))   # active area
-    R(0, -1.0, 35.4, 33.5, lw=THIN, ls=(0, (6, 2, 1, 2)))   # board behind (centre 2.5 below the glass centre)
-    centre(ax, DX - 42, DY, DX + 42, DY); centre(ax, DX, DY - 36, DX, DY + 40)
-    dim_h(ax, DX - 38, DX + 38, DY + 11.5 * k, "38", off=17, size=6.5)
-    dim_h(ax, DX - 30.4, DX + 30.4, DY - 7.6 * k, "30.4", off=-(3.9 * k + 9), size=6.5)
-    dim_v(ax, DY - 11.5 * k, DY + 11.5 * k, DX + 38, "23", off=14, size=6.5)
-    dim_v(ax, DY - 7.6 * k, DY + 7.6 * k, DX - 30.4, "15.2", off=-14, size=6.5)
-    txt(ax, DX, DY - 18.6 * k - 2.6, "chain line: display board 35.4 x 33.5 (behind the bezel)", 5.8, ha="center")
-    view_title(ax, DX, DY - 55, "DETAIL B  (OLED WINDOW)", "SCALE 2 : 1")
+    # -------- DETAIL C: motor clamp section, 2:1 --------
+    DX, DY, k = 318, 102, 2.0
+    P = lambda x, y: (DX + x * k, DY + y * k)
+    def R(x0, y0, x1, y1, **kw): rect(ax, *P(x0, y0), *P(x1, y1), **kw)
+    R(-CL_B / 2, CL_SQUEEZE, CL_B / 2, CL_HALF, lw=MED, fc="white", hatch="////", z=3)
+    R(-CL_B / 2, -CL_HALF, CL_B / 2, -CL_SQUEEZE, lw=MED, fc="white", hatch="\\\\\\\\", z=3)
+    R(-(MOTOR_W + CL_FIT) / 2, -MOTOR_H / 2, (MOTOR_W + CL_FIT) / 2, MOTOR_H / 2, lw=MED, fc="white", z=4)
+    ax.add_patch(FancyBboxPatch(P(-MOTOR_W / 2 + 1.5, -MOTOR_H / 2 + 1.5), (MOTOR_W - 3) * k, (MOTOR_H - 3) * k,
+                                boxstyle=f"round,pad={1.5 * k}", fc="#ddd", ec=INK, lw=MED, zorder=5))
+    R(-CL_B / 2 - 4, CL_HALF, CL_B / 2 + 4, CL_HALF + BASE_T, lw=MED, fc="white", hatch="....", z=3)        # base plate
+    for sx in (-1, 1):
+        R(sx * CL_SP / 2 - M3 / 2, -CL_HALF, sx * CL_SP / 2 + M3 / 2, CL_HALF + BASE_T, lw=THIN, fc="white", z=5)   # screw hole
+        R(sx * CL_SP / 2 - 2.8, CL_HALF + BASE_T, sx * CL_SP / 2 + 2.8, CL_HALF + BASE_T + 2, lw=MED, fc="white", z=5)  # screw head
+        R(sx * CL_SP / 2 - 2.8, -CL_HALF, sx * CL_SP / 2 + 2.8, -CL_HALF + 2.6, lw=MED, fc="#bbb", z=5)               # nut
+    centre(ax, *P(-CL_B / 2 - 7, 0), *P(CL_B / 2 + 7, 0)); centre(ax, *P(0, -CL_HALF - 4), *P(0, CL_HALF + 8))
+    x0, _ = P(-CL_B / 2, 0); x1, _ = P(CL_B / 2, 0); _, yb0 = P(0, -CL_HALF)
+    dim_h(ax, x0, x1, yb0, f"{CL_B:.0f}", off=-7)
+    xs0, _ = P(-CL_SP / 2, 0); xs1, _ = P(CL_SP / 2, 0); _, yt = P(0, CL_HALF + BASE_T + 2)
+    dim_h(ax, xs0, xs1, yt, f"{CL_SP:.0f}", off=6)
+    _, ya = P(0, CL_SQUEEZE); _, yb1 = P(0, CL_HALF)
+    dim_v(ax, ya, yb1, x1, f"{CL_HALF - CL_SQUEEZE:.0f}", off=7, size=5.8)
+    _, ym0 = P(0, -MOTOR_H / 2); _, ym1 = P(0, MOTOR_H / 2)
+    dim_v(ax, ym0, ym1, x0, f"{MOTOR_H:.0f}", off=-7, size=5.8)
+    leader(ax, P(0, -MOTOR_H / 2 + 2), (DX + 40, DY - 26), "N20 motor body 12 x 10", 5.8)
+    leader(ax, P(CL_SP / 2, -CL_HALF + 1.3), (DX + 40, DY - 31), "M3 nut in pocket", 5.8)
+    leader(ax, P(CL_SP / 2 + 2, CL_HALF + BASE_T + 1), (DX + 40, DY + 30), "M3 x 20 from the top", 5.8)
+    leader(ax, P(-CL_B / 2 - 2, CL_HALF + 1.5), (DX - 44, DY + 30), "base plate", 5.8, ha="right")
+    view_title(ax, DX, 66, "DETAIL C  MOTOR CLAMP (SECTION)", "SCALE 2 : 1")
 
-    # -------- notes -------
-    nx, ny = 175, 270
+    # -------- parts list --------
+    rows = [("NO.", "PART", "QTY", "SIZE / FILE"),
+            ("1", "Base plate, laser-cut acrylic", "1", "89 x 62 x 3"),
+            ("2", "Deck 2 (battery)", "1", "4 thick"),
+            ("3", "Deck 3 (Arduino Uno)", "1", "4 thick"),
+            ("4", "Spacer pin v3 (PLA)", "8", "17 gap, see spacers/v3"),
+            ("5", "Motor clamp, top + bottom (PLA)", "2", "28 x 20, n20_clamp"),
+            ("6", "Plate stand v2 (PLA, yellow)", "4", "50 x 13.25, plate_stand_v2"),
+            ("7", "Front faceplate v4 (TPU)", "1", "front_faceplate_v4"),
+            ("8", "Face stand v2", "1", "face_stand_v2"),
+            ("9", "N20 6 V 300 rpm motor + encoder", "2", "12 x 10 body"),
+            ("10", "Wheel and tyre", "2", "Ø34 x 6.5"),
+            ("11", "LiPo 2S 1000 mAh, XT60", "1", "68 x 37 x 12"),
+            ("12", "M3 x 20 screw + M3 nut", "4", "motor clamps"),
+            ("13", "Arduino Uno", "1", "68.6 x 53.4"),
+            ("14", "MPU-6050 (GY-521)", "1", "on the mini breadboard"),
+            ("15", "DRV8833 motor driver", "1", "on the mini breadboard"),
+            ("16", "OLED 1.3\" SH1106", "1", "behind the faceplate"),
+            ("17", "Push button, 10 kΩ resistor", "1 + 1", "see sheet 2")]
+    table(ax, 262, 282, [9, 60, 11, 63], rows, rowh=4.75, size=5.9, aligns=["center", "left", "center", "left"])
+
+    # -------- notes --------
+    nx, ny = 262, 189
     txt(ax, nx, ny, "NOTES", 8, weight="bold")
-    notes = ["1.  All dimensions in millimetres. General tolerance +/- 0.5 (3D printed parts).",
-             "2.  Dimensions taken from the Fusion 360 script  cad/fusion360/python/CatRobot.py.",
-             "3.  Shell: 2.5 wall, printed in two parts, split at 40 above the ground.",
-             "4.  Section A-A is cut through the centre plane; the standoffs at the corners",
-             "     (4 off, 18 long) lie behind the plane and are shown plain.",
-             "5.  Display: 1.3\" SH1106 OLED, board 35.4 x 33.5, active area 29.42 x 14.7",
-             "     (seller figures; measure the real board before printing the bezel).",
-             "6.  Whiskers, LED rings and bow tie are decoration and are not dimensioned.",
-             "7.  Part numbers refer to the parts list."]
-    for i, n in enumerate(notes): txt(ax, nx, ny - 7 - i * 5.0, n, 6.2)
+    notes = ["1.  Dimensions in mm. Base plate from cad/laser-cut/base_plate/make_base.py,",
+             "     clamp and pins from the OpenSCAD files in cad/printed-parts/.",
+             "2.  Plate heights follow the clamp (7.25 per half) and the v3 pins",
+             "     (17 gap, 4 mm decks). Decks 2 and 3 are drawn with the base plate outline.",
+             "3.  Faceplate, face stand, plate stands and wiring are left out of the views;",
+             "     their Fusion 360 files are in cad/printed-parts/fusion360/.",
+             "4.  The body touches the floor at about 45° of tilt; the firmware stops",
+             "     the motors at 40°.",
+             "5.  Motor + wheel = 50 measured from the encoder end to the wheel outer face.",
+             "6.  Clamp halves stay about 0.5 apart when tight: that gap is the grip."]
+    for i, n in enumerate(notes): txt(ax, nx, ny - 6 - i * 4.4, n, 5.8)
 
-    # -------- parts list -------
-    rows = [("NO.", "PART", "QTY", "SIZE (mm)"),
-            ("1", "Shell, upper (head)", "1", "80 x 55, 2.5 wall"),
-            ("2", "Shell, lower", "1", "80 x 55, 2.5 wall"),
-            ("3", "Platform 1 (battery)", "1", "70 x 48 x 1.6"),
-            ("4", "Platform 2 (drivers)", "1", "70 x 46 x 1.6"),
-            ("5", "Platform 3 (ESP32)", "1", "56 x 27 x 1.6"),
-            ("6", "Standoff, lower", "4", "dia 5.5 x 18"),
-            ("7", "Standoff, upper", "2", "dia 5.5 x 20"),
-            ("8", "N20 motor + gearbox + encoder", "2", "26 x 10 x 12 (+ 9.5 shaft)"),
-            ("9", "Wheel and tyre", "2", f"dia {WHEEL_D} x {WHEEL_W}"),
-            ("10", "LiPo 2S 1000 mAh", "1", "68 x 37 x 12"),
-            ("11", "ESP32 dev board", "1", "51 x 26"),
-            ("12", "MPU-6050 (GY-521)", "1", "20 x 15"),
-            ("13", "DRV8833 motor driver", "1", "20 x 15"),
-            ("14", "Buck converter 5 V 3 A", "1", "26.4 x 15"),
-            ("15", "OLED 1.3\" SH1106", "1", "35.4 x 33.5"),
-            ("16", "Face bezel", "1", "38 x 23 x 5.3")]
-    table(ax, 272, 143, [10, 58, 10, 50], rows, rowh=4.7, size=6.1, aligns=["center", "left", "center", "left"])
-    title_block(ax, "BO-BOT  Self-Balancing Cat Robot", "General arrangement, 3D printed shell", "1 of 2", "BB-GA-01")
+    title_block(ax, "BO-BOT  Self-Balancing Robot", "General arrangement, Arduino Uno build", "1 of 2", "BB-GA-02")
     fig.savefig(os.path.join(OUT, "sheet1-general-arrangement.png"), dpi=200)
     plt.close(fig)
 
 
 # ================================================================== SHEET 2
-def box_(ax, x, y, w, h, lab, sub="", lw=1.0, size=7):
-    rect(ax, x, y, x + w, y + h, lw, fc="white")
-    txt(ax, x + w / 2, y + h / 2 + (1.6 if sub else 0), lab, size, ha="center", weight="bold")
-    if sub: txt(ax, x + w / 2, y + h / 2 - 2.4, sub, 5.6, ha="center")
+def box_(ax, x, y, w, h, lab, sub="", size=7):
+    rect(ax, x, y, x + w, y + h, 1.0, fc="white")
+    txt(ax, x + w / 2, y + h / 2 + (1.7 if sub else 0), lab, size, ha="center", weight="bold")
+    if sub: txt(ax, x + w / 2, y + h / 2 - 2.5, sub, 5.6, ha="center")
 
 
 def wire(ax, pts, lab=None, lpos=None, ls="-", lw=0.9, size=5.8, ha="center", arrows="end"):
@@ -360,107 +394,108 @@ def wire(ax, pts, lab=None, lpos=None, ls="-", lw=0.9, size=5.8, ha="center", ar
     if lab: txt(ax, lpos[0], lpos[1], lab, size, ha=ha)
 
 
-def plan(ax, cx, cy, W, D, holes, name, scale="SCALE 1 : 1"):
-    ax.add_patch(FancyBboxPatch((cx - W / 2 + 3, cy - D / 2 + 3), W - 6, D - 6, boxstyle="round,pad=3,rounding_size=3", fc="none", ec=INK, lw=THICK, zorder=3))
-    for (x, z) in holes:
-        ax.add_patch(Circle((cx + x, cy + z), 1.6, fc="white", ec=INK, lw=MED, zorder=4))
-        ax.add_patch(Circle((cx + x, cy + z), 2.75, fc="none", ec=INK, lw=THIN, ls=(0, (2, 1.5)), zorder=4))
-    centre(ax, cx - W / 2 - 5, cy, cx + W / 2 + 5, cy); centre(ax, cx, cy - D / 2 - 5, cx, cy + D / 2 + 5)
-    view_title(ax, cx, cy - D / 2 - 16, name, scale)
-
-
 def sheet2():
     fig, ax = new_sheet()
     # ------------------------------------------------ block diagram
-    txt(ax, 30, 279, "SYSTEM BLOCK DIAGRAM", 8.5, weight="bold")
-    box_(ax, 30, 222, 42, 24, "LiPo 2S", "7.4 V, 1000 mAh")
-    box_(ax, 98, 252, 40, 14, "Buck 5 V", "3 A")
-    box_(ax, 98, 196, 40, 16, "DRV8833", "dual H-bridge")
-    box_(ax, 98, 170, 40, 12, "N20 motors", "L + R, with encoders", size=6.5)
-    box_(ax, 170, 218, 46, 48, "ESP32", "dev board, 200 Hz loop")
-    box_(ax, 250, 254, 34, 12, "MPU-6050", "I2C 0x68", size=6.5)
-    box_(ax, 250, 236, 34, 12, "OLED 1.3\"", "SH1106, I2C", size=6.5)
-    box_(ax, 250, 212, 34, 14, "Divider", "10 k / 4.7 k", size=6.5)
-    wire(ax, [(72, 240), (86, 240), (86, 259), (98, 259)], "7.4 V", (79, 262), arrows="end")
-    wire(ax, [(86, 240), (86, 204), (98, 204)], arrows="end")
-    txt(ax, 79, 206.5, "VM", 5.8)
-    wire(ax, [(138, 259), (170, 259)], "5 V", (154, 262))
-    wire(ax, [(138, 206), (152, 206), (152, 238), (170, 238)], "IN1-IN4 (PWM)", (154, 226), ha="left", arrows="end")
-    wire(ax, [(118, 196), (118, 182)], "OUT", (121, 189), ha="left")
-    wire(ax, [(138, 176), (196, 176), (196, 218)], "encoders A/B (3V3)", (167, 172.5), ls=(0, (4, 2)), arrows="end")
-    wire(ax, [(216, 260), (250, 260)], "I2C", (233, 263), arrows="both")
-    wire(ax, [(216, 242), (250, 242)], arrows="both")
-    txt(ax, 233, 238.8, "SDA 21 / SCL 22", 5.4)
-    wire(ax, [(250, 219), (216, 224)], "GPIO 36", (233, 215.5), arrows="end")
-    txt(ax, 30, 208, "Solid: power and signal.  Dashed: encoder lines.", 5.8)
-    txt(ax, 30, 203, "All grounds joined at one point.", 5.8)
+    txt(ax, 30, 280, "SYSTEM BLOCK DIAGRAM", 8.5, weight="bold")
+    box_(ax, 30, 238, 40, 22, "LiPo 2S", "7.4 V, 1000 mAh")
+    box_(ax, 120, 226, 50, 44, "Arduino Uno", "200 Hz control loop")
+    box_(ax, 120, 194, 50, 18, "DRV8833", "dual H-bridge")
+    box_(ax, 205, 194, 44, 18, "N20 motors", "L + R, with encoders", size=6.5)
+    box_(ax, 205, 255, 40, 13, "MPU-6050", "I2C 0x68", size=6.5)
+    box_(ax, 205, 238, 40, 13, "OLED 1.3\"", "SH1106, I2C 0x3C", size=6.5)
+    box_(ax, 205, 222, 40, 11, "Push button", "to GND", size=6.5)
+    wire(ax, [(70, 249), (92, 249), (92, 203), (120, 203)], arrows="end")
+    wire(ax, [(92, 249), (92, 258), (120, 258)], arrows="end")
+    ax.add_patch(Circle((92, 249), 0.9, fc=INK, ec=INK, zorder=6))
+    txt(ax, 81, 252, "XT60", 5.8, ha="center")
+    txt(ax, 106, 261, "VIN", 5.8, ha="center"); txt(ax, 106, 206, "VCC", 5.8, ha="center")
+    wire(ax, [(135, 226), (135, 212)], "D5 D6 D9 D10 (PWM)", (137, 220.5), ha="left")
+    txt(ax, 137, 216, "EEP: D8 (+10 k to GND)", 5.6)
+    wire(ax, [(170, 203), (205, 203)], "OUT1-4", (187.5, 206))
+    wire(ax, [(212, 212), (212, 218), (160, 218), (160, 226)], arrows="end", ls=(0, (4, 2)))
+    txt(ax, 186, 215.5, "encoders D2/D4, D3/D7", 5.6, ha="center")
+    wire(ax, [(170, 261.5), (205, 261.5)], arrows="both"); wire(ax, [(170, 244.5), (205, 244.5)], arrows="both")
+    txt(ax, 187.5, 253, "I2C A4 / A5", 5.8, ha="center")
+    wire(ax, [(205, 227.5), (170, 227.5)], "D12", (187.5, 230))
+    txt(ax, 30, 228, "Solid: power and signals.  Dashed: encoder lines.", 5.8)
+    txt(ax, 30, 223, "All grounds joined.  Uno 5V -> encoders, 3.3V -> MPU and OLED.", 5.8)
 
-    # ------------------------------------------------ pin table
-    rows = [("SIGNAL", "ESP32 PIN", "GOES TO"),
-            ("I2C SDA", "GPIO 21", "MPU-6050, OLED"),
-            ("I2C SCL", "GPIO 22", "MPU-6050, OLED"),
-            ("Left motor IN1 / IN2", "25 / 26", "DRV8833 AIN1 / AIN2"),
-            ("Right motor IN1 / IN2", "27 / 4", "DRV8833 BIN1 / BIN2"),
-            ("Left encoder A / B", "32 / 33", "left motor"),
-            ("Right encoder A / B", "34 / 35", "right motor"),
-            ("Battery sense", "36", "divider mid-point")]
-    txt(ax, 292, 279, "PIN MAP", 8.5, weight="bold")
-    table(ax, 292, 275, [38, 24, 54], rows, rowh=5.6, size=5.9, aligns=["left", "center", "left"])
+    # ------------------------------------------------ pin map and supplies
+    rows = [("SIGNAL", "UNO PIN", "GOES TO"),
+            ("Left encoder A (green)", "D2", "interrupt, rising edge"),
+            ("Right encoder A (green)", "D3", "interrupt, rising edge"),
+            ("Left encoder B (yellow)", "D4", "direction"),
+            ("Right encoder B (yellow)", "D7", "direction"),
+            ("Left motor", "D5 / D6", "DRV8833 IN1 / IN2"),
+            ("Right motor", "D9 / D10", "DRV8833 IN3 / IN4"),
+            ("Driver sleep", "D8", "DRV8833 EEP, 10 k to GND"),
+            ("Button", "D12", "button, other leg to GND"),
+            ("I2C SDA", "A4", "MPU-6050, OLED"),
+            ("I2C SCL", "A5", "MPU-6050, OLED"),
+            ("Serial", "D0 / D1", "USB, 115200 baud")]
+    txt(ax, 262, 280, "PIN MAP", 8.5, weight="bold")
+    table(ax, 262, 276, [44, 20, 80], rows, rowh=5.2, size=5.8, aligns=["left", "center", "left"])
     rows2 = [("SUPPLY", "FROM", "TO"),
-             ("7.4 V", "LiPo (XT60)", "DRV8833 VM, buck in, divider"),
-             ("5 V", "buck out", "ESP32 VIN"),
-             ("3.3 V", "ESP32 3V3", "MPU, OLED, encoders")]
-    table(ax, 292, 224, [20, 30, 66], rows2, rowh=5.6, size=5.9)
+             ("7.4 V", "LiPo (XT60)", "DRV8833 VCC, Uno VIN"),
+             ("5 V", "Uno 5V", "both encoders (black)"),
+             ("3.3 V", "Uno 3.3V", "MPU-6050, OLED"),
+             ("GND", "common", "everything, battery −")]
+    table(ax, 262, 208, [20, 34, 90], rows2, rowh=5.2, size=5.8)
+    rows3 = [("MOTOR WIRE", "LEFT", "RIGHT"),
+             ("red (motor +)", "OUT1", "OUT3"),
+             ("white (motor −)", "OUT2", "OUT4"),
+             ("green (encoder A)", "D2", "D3"),
+             ("yellow (encoder B)", "D4", "D7"),
+             ("black (encoder 5 V)", "5V", "5V"),
+             ("blue (encoder GND)", "GND", "GND")]
+    table(ax, 262, 177, [64, 40, 40], rows3, rowh=5.2, size=5.8, aligns=["left", "center", "center"])
 
-    # ------------------------------------------------ platform plans (top views, front = up)
-    PY = 108
-    c1, c2, c3 = 62, 152, 244
-    # platform 1
-    plan(ax, c1, PY, 70, 48, S1, "PLATFORM 1  (BATTERY)")
-    rect(ax, c1 - 34, PY - 18.5, c1 + 34, PY + 18.5, MED, fc="white", hatch="....", z=3)
-    rect(ax, c1 - 4, PY - 18.5, c1 + 4, PY + 18.5, MED, fc="white", z=3)
-    rect(ax, c1 - 5, PY - 26.5, c1 + 5, PY - 18.5, MED, fc="white", z=3)
-    leader(ax, (c1 + 20, PY + 8), (c1 + 40, PY + 33), "LiPo 68 x 37 x 12", 6)
-    leader(ax, (c1, PY - 23), (c1 + 14, PY - 33), "XT60 lead", 6)
-    dim_h(ax, c1 - 25.5, c1 + 25.5, PY + 21, "51", off=18, size=6.3)
-    dim_v(ax, PY - 21, PY + 21, c1 - 25.5, "42", off=-14, size=6.3)
-    dim_h(ax, c1 - 35, c1 + 35, PY - 24, "70", off=-4, size=6.3)
-    # platform 2
-    plan(ax, c2, PY, 70, 46, S1 + S2, "PLATFORM 2  (SENSOR + DRIVERS)")
-    rect(ax, c2 + 5, PY + 3, c2 + 25, PY + 18, MED, fc="white", z=3)                # mpu
-    rect(ax, c2 - 10, PY - 18, c2 + 10, PY - 3, MED, fc="white", z=3)               # drv
-    rect(ax, c2 - 33.2, PY + 3, c2 - 6.8, PY + 18, MED, fc="white", z=3)            # buck
-    txt(ax, c2 + 15, PY + 10.5, "MPU", 6, ha="center"); txt(ax, c2, PY - 10.5, "DRV8833", 6, ha="center"); txt(ax, c2 - 20, PY + 10.5, "BUCK", 6, ha="center")
-    dim_h(ax, c2 + 5, c2 + 25, PY + 18, "20", off=9, size=6.3)
-    dim_h(ax, c2 - 33.2, c2 - 6.8, PY + 18, "26.4", off=9, size=6.3)
-    dim_v(ax, PY + 3, PY + 18, c2 + 25, "15", off=8, size=6.3)
-    dim_h(ax, c2 - 35, c2 + 35, PY - 23, "70", off=-4, size=6.3)
-    txt(ax, c2, PY + 26, "", 5)
-    # platform 3
-    plan(ax, c3, PY, 56, 27, S2, "PLATFORM 3  (ESP32 + OLED)")
-    rect(ax, c3 - 25.5, PY - 13, c3 + 25.5, PY + 13, MED, fc="white", z=3)           # esp32 pcb
-    rect(ax, c3 - 25.5, PY - 12.75, c3 - 7.5, PY + 12.75, THIN, z=4)                 # module
-    rect(ax, c3 + 21.5, PY - 4, c3 + 28.5, PY + 4, THIN, z=4)                        # usb
-    txt(ax, c3 + 2, PY, "ESP32", 6.5, ha="center")
-    rect(ax, c3 - 17.7, PY + 15, c3 + 17.7, PY + 16.6, MED, ls=(0, (5, 2)), z=3)     # oled board edge (z = 15.8)
-    for sx in (1, -1): rect(ax, c3 + sx * 14.5 - 2, PY + 12.3, c3 + sx * 14.5 + 2, PY + 16.2, THIN, z=3)
-    leader(ax, (c3, PY + 15.8), (c3 + 12, PY + 28), "OLED board (vertical, front)", 6)
-    dim_h(ax, c3 - 25.5, c3 + 25.5, PY - 13, "51", off=-9, size=6.3)
-    dim_v(ax, PY - 13, PY + 13, c3 + 28.5, "26", off=7, size=6.3)
-    txt(ax, 106, PY + 29, "FRONT", 6.5, ha="center", weight="bold"); arrow(ax, (106, PY + 8), (106, PY + 24))
+    # ------------------------------------------------ drive module plan
+    CX, CY = 112, 128
+    U = lambda u: CX + u
+    V = lambda v: CY + v
+    rrect(ax, CX, CY, PLATE_W, PLATE_D, CORNER_R, THIN, ls=(0, (6, 2, 1, 2)), z=2)
+    for s in (1, -1):
+        rect(ax, U(s * WHEEL_IN), V(-WHEEL_D / 2), U(s * WHEEL_OUT), V(WHEEL_D / 2), MED, fc="white", z=4)
+        rect(ax, U(s * (WHEEL_IN + 0.8)), V(-WHEEL_D / 2 + 1), U(s * (WHEEL_OUT - 0.8)), V(WHEEL_D / 2 - 1), THIN, z=5)
+        rect(ax, U(s * INNER), V(-MOTOR_W / 2), U(s * MOTOR_OUT), V(MOTOR_W / 2), MED, fc="white", z=3)
+        rect(ax, U(s * (MOTOR_OUT - 9)), V(-MOTOR_W / 2), U(s * MOTOR_OUT), V(MOTOR_W / 2), MED, fc="white", hatch="||||", z=3)
+        line(ax, [(U(s * MOTOR_OUT), V(0)), (U(s * WHEEL_IN), V(0))], MED)
+        rect(ax, U(s * (SLOT_U - CL_L / 2)), V(-CL_B / 2), U(s * (SLOT_U + CL_L / 2)), V(CL_B / 2), MED, fc="none", z=4)
+        for sv in (-1, 1):
+            ax.add_patch(Circle((U(s * SLOT_U), V(sv * CL_SP / 2)), M3 / 2, fc="white", ec=INK, lw=MED, zorder=5))
+        rrect(ax, U(s * (ENC_U0 + ENC_U1) / 2), CY, ENC_U1 - ENC_U0, ENC_H, ENC_R, THIN, ls=(0, (3, 2)), z=6)
+        rect(ax, U(s * INNER), V(-6), U(s * (INNER + 1.2)), V(6), MED, fc="#ccc", z=5)
+    centre(ax, U(-62), CY, U(62), CY); centre(ax, CX, V(-38), CX, V(38))
+    dim_h(ax, U(-INNER), U(INNER), V(6), f"{GAP_CENTER:.0f}", off=34, size=5.8)
+    dim_h(ax, CX, U(SLOT_U), V(CL_B / 2), f"{SLOT_U:.0f}", off=9, size=5.8)
+    dim_h(ax, U(SLOT_U - CL_L / 2), U(SLOT_U + CL_L / 2), V(CL_B / 2), f"{CL_L:.0f}", off=19, size=5.8)
+    dim_v(ax, V(-CL_B / 2), V(CL_B / 2), U(SLOT_U + CL_L / 2), f"{CL_B:.0f}", off=31, size=5.8)
+    dim_h(ax, U(-INNER), U(-WHEEL_OUT), V(-WHEEL_D / 2), f"{MOTOR_PLUS_WHEEL:.0f}  (measured)", off=-8, size=5.8)
+    dim_h(ax, U(-WHEEL_C), U(WHEEL_C), V(-WHEEL_D / 2), f"{TRACK:.1f}  (track)", off=-17, size=6.2)
+    dim_h(ax, U(WHEEL_IN), U(WHEEL_OUT), V(WHEEL_D / 2), f"{WHEEL_W}", off=6, size=5.6)
+    leader(ax, (U(-SLOT_U), V(CL_SP / 2 + 1.5)), (U(-52), V(40)), "motor clamp, M3 screws 20 apart", 5.8, ha="right")
+    leader(ax, (U(-(MOTOR_OUT - 4)), V(-MOTOR_W / 2)), (U(-56), V(-37)), "gearbox", 5.8, ha="right")
+    leader(ax, (U(-INNER - 0.6), V(-6)), (U(-14), V(-40)), "encoder ends face the centre", 5.8, ha="right")
+    txt(ax, CX, V(-50), "chain line: base plate.  dashed: encoder windows above the encoders", 5.5, ha="center", color="#555")
+    view_title(ax, CX, 62, "DRIVE MODULE  (PLAN, PLATE TRANSPARENT)")
 
     # ------------------------------------------------ notes
-    nx = 292; ny = 160
+    nx, ny = 262, 133
     txt(ax, nx, ny, "NOTES", 8, weight="bold")
-    for i, n in enumerate(["1.  Dimensions in mm. Layout from CatRobot.py (x = across, z = to the face).",
-                           "2.  Platform holes dia 3.2 at (+/-25.5, +/-21); the upper pair at (+/-25.5, 0).",
-                           "3.  Power the encoders from 3V3, not 5 V (ESP32 inputs are 3.3 V only).",
-                           "4.  DRV8833 SLP pin to 3V3, or the motors stay off.",
-                           "5.  Check XT60 polarity before the first power-up.",
-                           "6.  Do not run from USB and the battery together.",
-                           "7.  Pins match firmware/balance_bot/include/config.h."]):
-        txt(ax, nx, ny - 7 - i * 5.2, n, 5.9)
-    title_block(ax, "BO-BOT  Self-Balancing Cat Robot", "Electronics layout and wiring", "2 of 2", "BB-EL-01")
+    for i, n in enumerate(["1.  Pins match firmware/uno/bobot_v7/bobot_v7.ino.",
+                           "2.  Full wiring diagram: wiring/uno-wiring-diagram.svg.",
+                           "3.  Encoders run from the Uno 5V (Uno inputs are 5 V).",
+                           "4.  The 10 k on EEP keeps the driver asleep during reset and upload.",
+                           "5.  MPU-6050 flat, chip up, near the axle. Its Z accelerometer is dead,",
+                           "     so tilt is measured from the forward axis only.",
+                           "6.  The setup wizard (check) finds motor and encoder directions,",
+                           "     so the motor wires do not need swapping.",
+                           "7.  Check XT60 polarity before power-up. No battery sensing on the",
+                           "     Uno: keep the pack above 6.6 V."]):
+        txt(ax, nx, ny - 6 - i * 4.5, n, 5.8)
+    title_block(ax, "BO-BOT  Self-Balancing Robot", "Electronics and drive module, Arduino Uno build", "2 of 2", "BB-EL-02")
     fig.savefig(os.path.join(OUT, "sheet2-electronics.png"), dpi=200)
     plt.close(fig)
 
@@ -468,3 +503,4 @@ def sheet2():
 if __name__ == "__main__":
     sheet1()
     sheet2()
+    print(f"track {TRACK:.1f}, overall {OVERALL:.0f}, base plate underside {Y_BASE:.2f}, deck 3 top {Y_D3 + DECK_T:.2f}")

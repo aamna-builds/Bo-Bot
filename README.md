@@ -81,23 +81,22 @@ close to the axle, drivers and sensors sit on the middle platform, and the ESP32
   <img src="docs/images/concept-sketch.png" alt="BO-BOT concept sketches" width="95%">
 </p>
 
-**Engineering drawings (A3, third angle):** the sizes come straight from the Fusion 360 script in [`cad/`](cad/), so the drawings
-and the CAD model agree. The picture is the first sheet; click it for full size.
+**Engineering drawings (A3, third angle), as built:** the sizes come from the files that made the parts (the laser-cut base plate
+script and the OpenSCAD clamp and spacer files in [`cad/`](cad/)). Click a sheet for full size.
 
 <p align="center">
-  <a href="docs/drawings/sheet1-general-arrangement.png"><img src="docs/drawings/sheet1-general-arrangement.png" alt="Sheet 1: general arrangement, section, side and top views, parts list" width="95%"></a><br>
-  <sub>Sheet 1: general arrangement (section A-A, side view, top view, OLED window detail, parts list).</sub>
+  <a href="docs/drawings/sheet1-general-arrangement.png"><img src="docs/drawings/sheet1-general-arrangement.png" alt="Sheet 1: general arrangement of the Arduino Uno build" width="95%"></a><br>
+  <sub>Sheet 1: front and side views of the plate stack, laser-cut base plate, motor clamp section, parts list.</sub>
 </p>
 
 <p align="center">
-  <a href="docs/drawings/sheet2-electronics.png"><img src="docs/drawings/sheet2-electronics.png" alt="Sheet 2: electronics layout, block diagram and pin map" width="95%"></a><br>
-  <sub>Sheet 2: electronics layout on the three platforms, system block diagram and pin map.</sub>
+  <a href="docs/drawings/sheet2-electronics.png"><img src="docs/drawings/sheet2-electronics.png" alt="Sheet 2: block diagram, pin map and drive module" width="95%"></a><br>
+  <sub>Sheet 2: system block diagram, Uno pin map, supplies, motor wire colours and the drive module plan.</sub>
 </p>
 
 The sheets are drawn by [`docs/drawings/draw_sheets.py`](docs/drawings/draw_sheets.py); change a number there and run it to redraw them.
-The first picture-style design sheets (drawn for a 0.96" display, with the thermocol casing) are kept in
-[`docs/images/archive/`](docs/images/archive/). The build uses a **1.3" SH1106 OLED**, and the CAD model and these drawings are
-for that display.
+The drawings of the first plan (ESP32 inside a 3D-printed cat shell) are kept in [`docs/drawings/archive-esp32-cat-shell/`](docs/drawings/archive-esp32-cat-shell/),
+and the first picture-style design sheets (0.96" display, thermocol casing) in [`docs/images/archive/`](docs/images/archive/).
 
 ## Simulation
 
