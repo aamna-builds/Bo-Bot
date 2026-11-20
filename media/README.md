@@ -10,8 +10,8 @@ Keep individual files under ~50 MB. For longer videos, upload them elsewhere (fo
 | 2026-11-09 | Simulation demo (balancing, driving, pushes, X-ray, fall) | [`videos/simulation-demo.mp4`](videos/simulation-demo.mp4) |
 | 2026-11-09 | Simulator 3D view with the cat shell | [`images/simulator-3d-view.png`](images/simulator-3d-view.png) |
 | 2026-11-14 | Parts as they arrived | [`images/parts/`](images/parts/) |
-| 2026-11-20 | Robot test video 1 | [`videos/robot-test-1.mp4`](videos/robot-test-1.mp4) |
-| 2026-11-20 | Robot test video 2 | [`videos/robot-test-2.mp4`](videos/robot-test-2.mp4) |
+| 2026-11-20 | Robot test: the OLED faces reacting while the robot is handled (21 s, no sound) | [`videos/robot-test.mp4`](videos/robot-test.mp4) |
+| 2026-11-20 | Time-lapse of a body part printing on the Creality printer (no sound) | [`videos/printing-timelapse.mp4`](videos/printing-timelapse.mp4) |
 
 ## Robot photos
 
