@@ -10,12 +10,12 @@
 | 4 | Compact balance charger, 2S-3S (IMAX B3 AC Pro) | 1 | Charging the LiPo | |
 | 5 | DRV8833 two-way motor driver module | 1 | Drives both motors | 20 x 15 mm |
 | 6 | MPU-6050 gyro + accelerometer breakout | 1 | Tilt sensing | 20 x 15 mm |
-| 7 | DC-DC buck module, 6-24 V to 5 V, 3 A | 1 | 5 V supply for the ESP32 | 26.4 x 15 mm |
+| 7 | DC-DC buck module, 6-24 V to 5 V, 3 A | 1 | 5 V supply for the ESP32 (first plan; the Uno build runs from VIN) | 26.4 x 15 mm |
 | 8 | XT60 connector, male + female | 1 set | Battery connector / on-off | |
 | 9 | 7.4 V 2S 1000 mAh 35C/70C LiPo battery | 1 | Main power | 68 x 37 x 12 mm |
 | 10 | Jumper wires | 1 set | Signal wiring | |
 
-**Already available:** ESP32 DevKit (51 x 26 mm), USB cable, other small parts.
+**Already available:** Arduino Uno (the controller on the robot), ESP32 DevKit (first plan, not used), USB cable, push button, 10 kΩ resistor, mini breadboard, other small parts.
 
 **Total cost (all of the above, taxes and shipping included): Rs 4,058.78**
 
@@ -29,7 +29,14 @@
 |---|---|---|
 | Standoffs (gold) | 4 + 2 | 18 mm and 20 mm, between platforms |
 | Platforms | 3 | Spacing 20 / 20 / 18 mm |
-| Thermocol sheet | | 5-8 mm, casing walls |
+| Thermocol sheet | | 5-8 mm, casing walls (first prototype) |
+| Laser-cut acrylic base plate | 1 | See [`../cad/laser-cut/base_plate/`](../cad/laser-cut/base_plate/) |
+| 3D-printed parts | | Plate stands, motor clamps, faceplate and face stand, see [`../cad/`](../cad/) |
+| M3 screws and nuts | | Motor clamps and plates |
+
+## First BOM (ESP32 plan)
+The printable BOMs made for the ESP32 plan (8 and 9 Nov), with the scripts that generate them, are in
+[`bom-esp32-archive/`](bom-esp32-archive/). The parts are the same apart from the controller.
 
 ## Datasheets
 Put PDFs in [`datasheets/`](datasheets/).
