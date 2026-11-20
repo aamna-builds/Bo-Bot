@@ -1,0 +1,39 @@
+=== ESP32 balancing robot -- WITH shell ===
+
+Body mass          258.5 g   (+2 wheels 6.4 g -> total 264.9 g)
+COM above axle      31.5 mm  (forward offset +0.6 mm)
+COM above floor     48.5 mm  (robot height 128 mm)
+Pitch inertia      265.4 kg.mm^2 about COM
+Fall angles      +40 deg fwd / -40 deg back (body hits floor)
+Motor R=10.9 ohm  Kt=3.54 mNm/A  gear eff=0.70  reflected rotor J=62.5 kg.mm^2/motor
+Encoder          1400.0 counts / wheel rev (x4)
+
+-- Motor on your battery (GA12-N20 6 V 300 rpm, 34 mm wheel) --
+ Vbat  PWM cap  no-load rpm  top speed m/s  stall kg.cm  stall A
+  8.4    100%        453         0.81         0.92     0.75
+  8.4     80%        362         0.65         0.73     0.60
+  7.4    100%        399         0.71         0.81     0.66
+  7.4     80%        319         0.57         0.64     0.53
+  6.6    100%        356         0.63         0.71     0.59
+  6.6     80%        285         0.51         0.57     0.47
+
+-- Open loop: unstable pole 10.0 1/s (falls with time constant 100 ms)
+-- LQR (ideal, no backlash/noise) cascade gains: kp=42.49, kd=2.96, kp_v=28.21, ki_v=14.23
+-- Firmware gains used (tuned in this sim with backlash, noise, delays): kp=55.0, kd=0.35, ki=0.0, kp_v=20.0, ki_v=0.9, kp_t=0.3, ki_t=1.0, deadband=0.0
+
+[stand 8 s]   fallen=False  wobble 0.05 deg rms  PWM jitter 1.2  drift 6.1 cm  peak traction use 22% of grip
+[push]        survives a head push up to 0.055 N s (~ 0.21 m/s kick to the whole robot)
+[drive 0.3]   fallen=False  reached 0.29 m/s (+/- 0.01)
+[drive 0.5]   fallen=False  reached 0.51 m/s
+[turn 90/s]   fallen=False  actual yaw rate 86 deg/s
+[battery]     standing draw 124 mA -> ~6.5 h to 80 % depth of discharge
+
+-- Sensitivity (stand 8 s with tuned gains) --
+  backlash 0 deg               fallen=False wobble 0.04 deg  PWM jitter   1.0  drift   8.6 cm
+  backlash 3 deg               fallen=False wobble 0.36 deg  PWM jitter  31.5  drift  42.1 cm
+  loop 100 Hz                  fallen=False wobble 0.52 deg  PWM jitter  14.6  drift   8.6 cm
+  loop 500 Hz                  fallen=False wobble 0.71 deg  PWM jitter  53.4  drift  72.1 cm
+  MPU tilted 3 deg             fallen=False wobble 0.05 deg  PWM jitter   2.4  drift  68.6 cm
+  MPU on top deck (z=60mm)     fallen=False wobble 0.39 deg  PWM jitter  17.7  drift   5.8 cm
+  +50 g payload on top         fallen=False wobble 0.03 deg  PWM jitter   0.7  drift   5.0 cm
+  battery at 6.8 V (soc 15%)   fallen=False wobble 0.15 deg  PWM jitter   8.6  drift   9.9 cm
