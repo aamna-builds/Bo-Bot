@@ -36,6 +36,34 @@ jobs:
       - name: Robot balances, survives a push and drives
         run: python simulation/tools/smoke_test.py simulation/web/index.html
 
+  uno-firmware:
+    name: Arduino Uno sketches compile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+      - uses: arduino/setup-arduino-cli@v2
+        with:
+          version: "1.6.0"
+      - name: Install the Uno core and U8g2
+        run: |
+          arduino-cli core update-index
+          arduino-cli core install arduino:avr@1.8.8
+          arduino-cli lib install U8g2
+      - name: Compile every sketch in firmware/uno for the Uno
+        run: |
+          fail=0
+          while IFS= read -r ino; do
+            dir=$(dirname "$ino")
+            if out=$(arduino-cli compile --fqbn arduino:avr:uno "$dir" 2>&1); then
+              echo "OK    $dir  ($(echo "$out" | grep -o 'Sketch uses [0-9]* bytes ([0-9]*%)'))"
+            else
+              echo "FAIL  $dir"; echo "$out"; fail=1
+            fi
+          done < <(find firmware/uno -name '*.ino' | sort)
+          exit $fail
+
   firmware-tests:
     name: Firmware tests
     runs-on: ubuntu-latest
