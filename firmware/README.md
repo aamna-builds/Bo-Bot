@@ -1,4 +1,10 @@
-# Firmware (ESP32)
+# Firmware
+
+> **The robot runs the Arduino Uno firmware in [`uno/`](uno/)** (current version: [`uno/bobot_v7`](uno/bobot_v7/bobot_v7.ino)).
+> The build moved from the ESP32 to an Arduino Uno on 16 Nov. The ESP32 project below was written first and is kept for reference;
+> its controller design (cascade speed and angle loops at 200 Hz) carried over to the Uno.
+
+## ESP32 version (not on the robot)
 
 `balance_bot/` is a PlatformIO project (Arduino framework) for the ESP32. The balance controller and the OLED face are
 **ports of the web simulator**, using the same gains and units, so values tuned in the simulator are a good starting point on the robot.
@@ -11,12 +17,12 @@
 | `balance_bot/src/main.cpp` | Hardware layer: MPU-6050, encoders, DRV8833 PWM, OLED, 200 Hz control task, serial commands |
 | `test/` | PC tests that check the controller and face against the simulator (see below) |
 
-## Build and upload
+### Build and upload
 1. Install [PlatformIO](https://platformio.org/install) (VS Code extension).
 2. Open the `firmware/balance_bot` folder, connect the ESP32 over USB, and press **Upload** (`pio run -t upload`).
 3. Open the Serial Monitor at 115200 baud. Type `help` for the commands.
 
-## Bring-up (do these in order, with the wheels OFF the ground)
+### Bring-up (do these in order, with the wheels OFF the ground)
 1. **Power the ESP32 from USB only** (motor battery disconnected). The monitor should print the MPU `WHO_AM_I`, then the gyro offsets.
    If you see "MPU-6050 not found", check SDA (GPIO 21), SCL (GPIO 22) and 3V3.
 2. **Angle sign:** type `tele on`. Tilt the robot forward: the `angle` column must go **positive**. If not, remap the axes in `mapImu()` in `config.h`.
@@ -29,7 +35,7 @@
 If something spins up violently: unplug the battery. The controller stops by itself beyond 40 degrees of tilt and does not restart
 until the robot is held upright for one second.
 
-## Tuning from the Serial Monitor
+### Tuning from the Serial Monitor
 `set kp 50`, `set kd 0.4`, `v 0.2`, `yaw 60`, `tele on` (CSV for plotting), `show`. The same advice as the simulator applies:
 
 - Creeps away while standing: adjust `trim`.
@@ -39,7 +45,7 @@ until the robot is held upright for one second.
 
 Gains typed here are not saved. Put the final values into `Gains` in `controller.h`.
 
-## Tests (run on a PC, no hardware needed)
+### Tests (run on a PC, no hardware needed)
 ```
 cd firmware/test
 g++ -std=c++17 -O2 -o test_controller test_controller.cpp && ./test_controller
@@ -51,7 +57,7 @@ g++ -std=c++17 -O2 -o test_face test_face.cpp && ./test_face
 - If you change the simulator's controller or face, regenerate the reference data with `python firmware/test/gen_golden.py`.
 - GitHub runs these tests, plus a syntax check of `main.cpp` against stand-in Arduino headers, on every push.
 
-## Status
+### Status
 - **Verified on a PC:** the controller and face match the simulator.
 - **Not yet verified:** `main.cpp` has not been compiled with the ESP32 toolchain or run on the robot. It passes a syntax check
   against stand-in headers only. Expect small fixes at the first real build, and expect to re-tune the gains: the simulator is an approximation.
