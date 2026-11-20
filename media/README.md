@@ -23,3 +23,5 @@ Keep individual files under ~50 MB. For longer videos, upload them elsewhere (fo
 | Top: MPU-6050 and DRV8833 on the mini breadboard, motor and encoder leads | Wiring, seen from above |
 | ![printing faceplate](images/robot/printing-front-faceplate-v4-tpu.png) | ![printing shell](images/robot/printing-face-shell.png) |
 | Printing the front faceplate v4 in TPU | 3D printing a body part |
+| ![printed shell, left](images/robot/shell-tpu-front-left.jpg) | ![printed shell, right](images/robot/shell-tpu-front-right.jpg) |
+| The printed shell (front_faceplate_v4, TPU): window and wheel-arch cut-out | The printed shell from the other side |

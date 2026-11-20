@@ -206,6 +206,8 @@ The full parts list with sizes and sources is in [`components/`](components/).
 | MPU-6050 and DRV8833 on the mini breadboard | Wiring from above |
 | ![printing the faceplate](media/images/robot/printing-front-faceplate-v4-tpu.png) | ![printing](media/images/robot/printing-face-shell.png) |
 | Printing the front faceplate v4 in TPU | 3D printing a body part |
+| ![printed shell](media/images/robot/shell-tpu-front-left.jpg) | ![printed shell](media/images/robot/shell-tpu-front-right.jpg) |
+| The printed shell (front faceplate v4, TPU) | The printed shell from the other side |
 
 <p align="center"><a href="media/videos/robot-test.mp4"><img src="media/images/robot/robot-test-still.jpg" alt="Robot test video" width="60%"></a><br><sub>Robot test: the OLED faces reacting as the robot is handled. Click to play.</sub></p>
 
