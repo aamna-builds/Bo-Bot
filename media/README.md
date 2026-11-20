@@ -12,6 +12,10 @@ Keep individual files under ~50 MB. For longer videos, upload them elsewhere (fo
 | 2026-11-14 | Parts as they arrived | [`images/parts/`](images/parts/) |
 | 2026-11-20 | Robot test: the OLED faces reacting while the robot is handled (21 s, no sound) | [`videos/robot-test.mp4`](videos/robot-test.mp4) |
 | 2026-11-20 | Time-lapse of a body part printing on the Creality printer (no sound) | [`videos/printing-timelapse.mp4`](videos/printing-timelapse.mp4) |
+| 2026-11-20 | BO-BOT balancing with the shell on, front view (5 s) | [`videos/balancing-shell-front.mp4`](videos/balancing-shell-front.mp4) |
+| 2026-11-20 | BO-BOT balancing with the shell on, seen from above (4.5 s) | [`videos/balancing-shell-top-view.mp4`](videos/balancing-shell-top-view.mp4) |
+| 2026-11-20 | Dizzy face on the OLED (4 s) | [`videos/face-dizzy.mp4`](videos/face-dizzy.mp4) |
+| 2026-11-20 | Fallen face (X eyes) changing to the waiting face (2 s) | [`videos/face-fell-then-waiting.mp4`](videos/face-fell-then-waiting.mp4) |
 
 ## Robot photos
 
@@ -25,3 +29,5 @@ Keep individual files under ~50 MB. For longer videos, upload them elsewhere (fo
 | Printing the front faceplate v4 in TPU | 3D printing a body part |
 | ![printed shell, left](images/robot/shell-tpu-front-left.jpg) | ![printed shell, right](images/robot/shell-tpu-front-right.jpg) |
 | The printed shell (front_faceplate_v4, TPU): window and wheel-arch cut-out | The printed shell from the other side |
+| ![BO-BOT with the shell](images/robot/bobot-with-shell-front.jpg) | ![balancing](images/robot/balancing-shell-front-still.jpg) |
+| BO-BOT with the shell and the faceplate fitted | Still from the balancing video |

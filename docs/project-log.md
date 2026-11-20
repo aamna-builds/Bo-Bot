@@ -22,6 +22,7 @@
 | 2026-11-18 | 16 faces with automatic reactions (pushes, falls, wandering, idle emotes). Push button on D12 to stop and recalibrate. Keep-straight (`ks`) and motor balance (`mbal`) added to keep it driving straight. |
 | 2026-11-19 | Firmware shortened; OLED reconnects by itself after a glitch; moving dot on the face. |
 | 2026-11-20 | Firmware **v7**. Plate stands printed in PLA, front faceplate v4 printed in TPU. Uno wiring diagram, Fusion 360 part files, G-code, build photos, a robot test video, a print time-lapse and the Python simulator added to the repo. |
+| 2026-11-20 | Printed shell fitted over the robot with the faceplate on the front. Photo and short videos of BO-BOT balancing with the shell, and of the dizzy and fallen faces, added to `media/`. |
 
 ## To-do
 - [ ] Run CAD script in Fusion 360 and export `.f3d` / `.step` to `cad/exports/`

@@ -50,7 +50,8 @@ The project covers the full engineering workflow:
 ## The robot
 
 <p align="center">
-  <img src="media/images/robot/front-faceplate.webp" alt="BO-BOT front view with the faceplate" width="32%">
+  <img src="media/images/robot/bobot-with-shell-front.jpg" alt="BO-BOT with its printed shell and faceplate" width="26%">
+  <img src="media/images/robot/front-faceplate.webp" alt="BO-BOT front view with the faceplate" width="26%">
   <img src="media/images/robot/side-view-uno-and-battery.webp" alt="BO-BOT side view: Arduino Uno, LiPo and plate stands" width="40%">
 </p>
 
@@ -60,7 +61,9 @@ The built robot runs on an **Arduino Uno** with an MPU-6050, a DRV8833 driver an
 - **Firmware:** [`firmware/uno/bobot_v7`](firmware/uno/bobot_v7/bobot_v7.ino): cascade speed and angle control at 200 Hz,
   keep-straight from the encoders, a six-step setup wizard, settings in EEPROM, a stop / recalibrate button, and **16 animated faces**
   drawn without a screen buffer. Details in [`firmware/uno/README.md`](firmware/uno/README.md).
-- **Videos:** [robot test](media/videos/robot-test.mp4) (the faces reacting as the robot is handled) and a [print time-lapse](media/videos/printing-timelapse.mp4).
+- **Videos:** BO-BOT balancing with its shell on, [from the front](media/videos/balancing-shell-front.mp4) and [from above](media/videos/balancing-shell-top-view.mp4);
+  the [dizzy face](media/videos/face-dizzy.mp4) and the [fallen face changing to the waiting face](media/videos/face-fell-then-waiting.mp4);
+  a [robot test](media/videos/robot-test.mp4) (the faces reacting as the robot is handled) and a [print time-lapse](media/videos/printing-timelapse.mp4).
   More photos in [`media/`](media/).
 
 ## Wiring
@@ -208,9 +211,13 @@ The full parts list with sizes and sources is in [`components/`](components/).
 | Printing the front faceplate v4 in TPU | 3D printing a body part |
 | ![printed shell](media/images/robot/shell-tpu-front-left.jpg) | ![printed shell](media/images/robot/shell-tpu-front-right.jpg) |
 | The printed shell (front faceplate v4, TPU) | The printed shell from the other side |
+| ![BO-BOT with the shell](media/images/robot/bobot-with-shell-front.jpg) | <a href="media/videos/balancing-shell-front.mp4"><img src="media/images/robot/balancing-shell-front-still.jpg" alt="BO-BOT balancing video" width="80%"></a> |
+| BO-BOT with the shell and the faceplate fitted | Balancing with the shell on (click to play) |
 
 <p align="center"><a href="media/videos/robot-test.mp4"><img src="media/images/robot/robot-test-still.jpg" alt="Robot test video" width="60%"></a><br><sub>Robot test: the OLED faces reacting as the robot is handled. Click to play.</sub></p>
 
+Short clips: [balancing, front](media/videos/balancing-shell-front.mp4) · [balancing, from above](media/videos/balancing-shell-top-view.mp4) ·
+[dizzy face](media/videos/face-dizzy.mp4) · [fallen face, then waiting](media/videos/face-fell-then-waiting.mp4).
 Print time-lapse: [`printing-timelapse.mp4`](media/videos/printing-timelapse.mp4).
 Parts photos are in [`components/`](components/), simulator videos in [`media/videos/`](media/videos/).
 
