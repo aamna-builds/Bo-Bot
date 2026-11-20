@@ -25,7 +25,8 @@ Mechanical design, electronics, firmware, simulation and documentation, all in o
 [Simulation](#simulation) ·
 [Architecture](#system-architecture) ·
 [Repository](#repository-structure) ·
-[Roadmap](#roadmap)
+[Roadmap](#roadmap) ·
+[Credits](#credits-and-licence)
 
 </div>
 
@@ -59,7 +60,7 @@ The built robot runs on an **Arduino Uno** with an MPU-6050, a DRV8833 driver an
 - **Firmware:** [`firmware/uno/bobot_v7`](firmware/uno/bobot_v7/bobot_v7.ino): cascade speed and angle control at 200 Hz,
   keep-straight from the encoders, a six-step setup wizard, settings in EEPROM, a stop / recalibrate button, and **16 animated faces**
   drawn without a screen buffer. Details in [`firmware/uno/README.md`](firmware/uno/README.md).
-- **Test videos:** [`robot-test-1.mp4`](media/videos/robot-test-1.mp4), [`robot-test-2.mp4`](media/videos/robot-test-2.mp4).
+- **Videos:** [robot test](media/videos/robot-test.mp4) (the faces reacting as the robot is handled) and a [print time-lapse](media/videos/printing-timelapse.mp4).
   More photos in [`media/`](media/).
 
 ## Wiring
@@ -206,5 +207,14 @@ The full parts list with sizes and sources is in [`components/`](components/).
 | ![printing the faceplate](media/images/robot/printing-front-faceplate-v4-tpu.png) | ![printing](media/images/robot/printing-face-shell.png) |
 | Printing the front faceplate v4 in TPU | 3D printing a body part |
 
-Test videos: [`robot-test-1.mp4`](media/videos/robot-test-1.mp4), [`robot-test-2.mp4`](media/videos/robot-test-2.mp4).
+<p align="center"><a href="media/videos/robot-test.mp4"><img src="media/images/robot/robot-test-still.jpg" alt="Robot test video" width="60%"></a><br><sub>Robot test: the OLED faces reacting as the robot is handled. Click to play.</sub></p>
+
+Print time-lapse: [`printing-timelapse.mp4`](media/videos/printing-timelapse.mp4).
 Parts photos are in [`components/`](components/), simulator videos in [`media/videos/`](media/videos/).
+
+## Credits and licence
+
+BO-BOT is designed and built by **Aamna Khan** ([@aamna-builds](https://github.com/aamna-builds)).
+Third-party libraries and tools used by the project are credited in [`CREDITS.md`](CREDITS.md).
+
+© 2026 Aamna Khan. **All rights reserved.** See [`LICENSE`](LICENSE).
